@@ -105,6 +105,12 @@ html { scroll-behavior: smooth; }
   text-decoration: none;
 }
 .part-link:hover { text-decoration: underline; }
+/* Topic 11 spans every test part, so its rule shows the whole rainbow */
+.all-parts .topic-head {
+  border-image: linear-gradient(90deg,
+    var(--red) 0 14.28%, var(--orange) 14.28% 28.57%, var(--yellow) 28.57% 42.85%,
+    var(--green) 42.85% 57.14%, var(--blue) 57.14% 71.42%, var(--indigo) 71.42% 85.71%, var(--violet) 85.71% 100%) 1;
+}
 .topic p, .topic li { max-width: 72ch; }
 .topic > p:first-of-type { margin-top: 14px; }
 .topic h3 { margin: 22px 0 8px; font: 700 1.05rem var(--body); }
@@ -204,7 +210,7 @@ td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
   <div class="wrap">
     <p class="eyebrow">North Carolina · Life &amp; Annuity license exam</p>
     <h1>Life &amp; Annuity Study Guide</h1>
-    <p class="lede">Ten topics, from how insurers are organized to North Carolina law, plus every number worth memorizing. Each topic's color matches the practice test part that covers it.</p>
+    <p class="lede">Ten topics from the study notes, from how insurers are organized to North Carolina law, plus an eleventh with extra topics from the official NC exam outline. Each topic's color matches the practice test part that covers it.</p>
   </div>
 </header>
 
@@ -222,6 +228,7 @@ td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
       <li><a href="#topic-8" style="--c:var(--green)"><span class="dot"></span><span class="n">8</span><span class="label">Business &amp; retirement</span></a></li>
       <li><a href="#topic-9" style="--c:var(--green)"><span class="dot"></span><span class="n">9</span><span class="label">Social Security</span></a></li>
       <li><a href="#topic-10" style="--c:var(--blue)"><span class="dot"></span><span class="n">10</span><span class="label">NC law &amp; ethics</span></a></li>
+      <li><a href="#topic-11" style="--c:var(--fg)"><span class="dot rainbow"></span><span class="n">11</span><span class="label">From the exam outline</span></a></li>
       <li><a href="#numbers" style="--c:var(--indigo)"><span class="dot"></span><span class="n">#</span><span class="label">Numbers to memorize</span></a></li>
       <li><a href="#memory-aids" style="--c:var(--violet)"><span class="dot"></span><span class="n">✦</span><span class="label">Memory aids</span></a></li>
     </ol>
@@ -459,7 +466,7 @@ td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
           <tr><td>Insuring agreement</td><td>The insurer's promise to pay a stated sum</td></tr>
           <tr><td>Incontestability</td><td>After 2 years, the insurer can't contest the policy's validity</td></tr>
           <tr><td>Suicide</td><td>Within 2 years of issue: premiums are refunded, no death benefit</td></tr>
-          <tr><td>Reinstatement</td><td>Within 5 years of default <span class="verify">Verify</span> (many states use 3). Needs evidence of insurability and back premiums</td></tr>
+          <tr><td>Reinstatement</td><td>Within 5 years of default in NC (<a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_58/GS_58-58-22.html">G.S. 58-58-22</a>). Needs a written application, evidence of insurability and overdue premiums with interest</td></tr>
           <tr><td>Automatic premium loan</td><td>An overdue premium is borrowed from cash value at the end of the grace period</td></tr>
           <tr><td>Exclusions</td><td>Risks the policy does not cover</td></tr>
           <tr><td>Absolute assignment</td><td>Transfers full ownership and control to the assignee</td></tr>
@@ -649,7 +656,8 @@ td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
         <thead><tr><th>Event</th><th>Deadline</th></tr></thead>
         <tbody>
           <tr><td>Insurer files a new agent's appointment</td><td class="num">15 days after the agent's first application</td></tr>
-          <tr><td>Licensee reports a criminal conviction</td><td class="num">10 business days <span class="verify">Verify</span></td></tr>
+          <tr><td>Licensee reports a criminal conviction</td><td class="num">10 days after the conviction (<a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_58/GS_58-2-69.html">G.S. 58-2-69</a>)</td></tr>
+          <tr><td>Licensee reports a new home or email address</td><td class="num">10 business days</td></tr>
           <tr><td>Licensee reports an administrative action</td><td class="num">30 days after final disposition</td></tr>
           <tr><td>Licensee reports a criminal prosecution</td><td class="num">30 days after the initial pretrial hearing</td></tr>
           <tr><td>Insurer reports ending an appointment to the Commissioner</td><td class="num">30 days</td></tr>
@@ -681,6 +689,95 @@ td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
       </ul>
     </section>
 
+    <!-- 11 -->
+    <section class="topic all-parts" id="topic-11" style="--c:var(--indigo)">
+      <div class="topic-head">
+        <span class="badge">11</span>
+        <h2>Extra topics from the official exam outline</h2>
+        <a class="part-link" href="practice-test.html#q101"><span class="dot rainbow"></span>Test questions 101–150</a>
+      </div>
+      <p>The NC Life agent exam has 55 scored questions plus up to 5 unscored pretest questions, drawn from five areas in the <a href="https://www.ncdoi.gov/documents/company-licensing/nc-insurance-licensing-examination-candidate-guide/open">NC Department of Insurance content outline</a> (effective March 15, 2024). This topic covers outline items the study notes didn't.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Outline section</th><th>Scored questions</th></tr></thead>
+        <tbody>
+          <tr><td>I. Types of individual life insurance</td><td class="num">17</td></tr>
+          <tr><td>II. Annuities</td><td class="num">5</td></tr>
+          <tr><td>III. Policy provisions, options and other features</td><td class="num">11</td></tr>
+          <tr><td>IV. Other life topics</td><td class="num">8</td></tr>
+          <tr><td>V. NC statutes and regulations pertinent to life</td><td class="num">14</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>More policy types</h3>
+      <ul>
+        <li><strong>Endowment:</strong> pays the face amount at death during the term, or at the maturity date if the insured is alive.</li>
+        <li><strong>Modified premium:</strong> lower premium for the first few years, then one step up to a higher level premium. <strong>Graded premium</strong> rises gradually each year before leveling off.</li>
+        <li><strong>Jumping juvenile:</strong> the face amount increases automatically at a set age, often fivefold at 21, with no premium increase or proof of insurability.</li>
+        <li><strong>Universal life:</strong> <em>unbundled</em>, meaning mortality charges, expenses and interest credits are shown separately. The <em>target premium</em> is the amount the insurer suggests paying. <strong>Option A</strong> pays a level death benefit (the face amount includes the cash value); <strong>Option B</strong> pays the face amount plus the cash value.</li>
+      </ul>
+
+      <h3>More policy provisions</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Provision</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td>Grace period</td><td>31 days in NC; coverage continues, and an unpaid premium is deducted from a death claim (<a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_58/GS_58-58-22.html">G.S. 58-58-22</a>)</td></tr>
+          <tr><td>Misstatement of age or gender</td><td>Benefits or premiums are adjusted to what the premium paid would buy at the correct age</td></tr>
+          <tr><td>War exclusion</td><td><em>Results</em> type excludes deaths caused by war; <em>status</em> type excludes any death while in military service</td></tr>
+          <tr><td>Collateral assignment</td><td>Partial, temporary transfer to secure a loan; the lender is paid first</td></tr>
+          <tr><td>Right to defer</td><td>The insurer may delay paying cash value or a loan (other than for premiums) up to 6 months</td></tr>
+          <tr><td>Automatic nonforfeiture option</td><td>Extended term usually applies if the owner makes no election</td></tr>
+          <tr><td>Guaranteed insurability</td><td>Buy more coverage at set ages or events without proving insurability</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Settlement options</strong> (besides a lump sum): interest only, fixed period, fixed amount, and life income (single or joint).</p>
+
+      <h3>Annuity payout options</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Option</th><th>What's guaranteed</th></tr></thead>
+        <tbody>
+          <tr><td>Straight (pure) life</td><td>Highest income for one person; stops at death, nothing to a beneficiary</td></tr>
+          <tr><td>Life with period certain</td><td>Payments for life, and for at least the certain period (e.g. 10 years) even if the annuitant dies sooner</td></tr>
+          <tr><td>Cash or installment refund</td><td>At least the amount paid in is paid out; the rest goes to a beneficiary in cash or installments</td></tr>
+          <tr><td>Joint and survivor</td><td>Payments continue until the second of two annuitants dies</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Taxes, business and variable products</h3>
+      <ul>
+        <li><strong>Annuity withdrawals</strong> before annuitization come out earnings first, taxed as ordinary income. Before age 59½, a 10% penalty applies unless an exception fits, such as death, disability or substantially equal payments (<a href="https://www.law.cornell.edu/uscode/text/26/72">26 U.S.C. § 72</a>).</li>
+        <li><strong>Section 1035 exchanges</strong> are tax-free for life to life, life to annuity, and annuity to annuity, but not annuity to life (<a href="https://www.law.cornell.edu/uscode/text/26/1035">26 U.S.C. § 1035</a>).</li>
+        <li><strong>Buy-sell plans:</strong> in a <em>cross-purchase</em> plan the owners insure each other; in an <em>entity</em> plan the business insures each owner.</li>
+        <li><strong>SEP:</strong> the employer contributes to each employee's own IRA with little paperwork.</li>
+        <li><strong>Variable products</strong> also require FINRA registration, such as the <a href="https://www.finra.org/registration-exams-ce/qualification-exams/series6">Series 6</a>.</li>
+      </ul>
+
+      <h3>Forming the contract</h3>
+      <ul>
+        <li>The application with the first premium is the applicant's offer. A policy issued as applied for is the insurer's acceptance; a policy issued differently (for example, at a higher premium) is a counteroffer the applicant must accept.</li>
+        <li>If no premium was paid with the application, the agent collects it at delivery along with a <strong>statement of continued good health</strong>.</li>
+        <li>Corrections on a paper application are crossed out and initialed by the applicant, never erased.</li>
+        <li><strong>Impersonation</strong> (someone else taking the medical exam) and <strong>concealment</strong> of material facts let the insurer void the contract.</li>
+      </ul>
+
+      <h3>More North Carolina law</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Rule</th><th>Detail</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>Contract of insurance</td><td>The insurer pays money or does something of value as an indemnity or reimbursement for loss to something the other party has an interest in</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_58/GS_58-1-10.html">G.S. 58-1-10</a></td></tr>
+          <tr><td>Buyer's Guide and Policy Summary</td><td>Given before the insurer accepts the first premium, or with the policy if it has at least a 10-day unconditional refund. The summary is titled “Statement of Policy Cost and Benefit Information”</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_58/Article_60.html">Article 60</a></td></tr>
+          <tr><td>Agent disclosure</td><td>Before a presentation, say you're a life insurance agent and name the insurer</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_58/Article_60.html">G.S. 58-60-20</a></td></tr>
+          <tr><td>Annuity disclosure</td><td>At or before application (or within 5 business days for other sales); if not given at application, at least a 15-day free look</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_58/Article_60.html">G.S. 58-60-135</a></td></tr>
+          <tr><td>Policy loan interest</td><td>Fixed rate up to 8%, or an adjustable rate set at least every 12 months but not more than every 3 months</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_58/Article_61.html">G.S. 58-61-10</a></td></tr>
+          <tr><td>Guaranty association</td><td>$300,000 for all benefits, including cash values, per life</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_58/GS_58-62-21.html">G.S. 58-62-21</a></td></tr>
+          <tr><td>Producer license</td><td>At least 18; temporary licenses up to 180 days without an exam</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_58/Article_33.html">Article 33</a></td></tr>
+          <tr><td>Unauthorized insurers</td><td>Unknowing: Class 1 misdemeanor. Knew or should have known: Class H felony. Strictly liable for unpaid claims either way</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_58/GS_58-33-95.html">G.S. 58-33-95</a></td></tr>
+          <tr><td>Privacy</td><td>Pretext interviews banned (narrow claim-fraud exception). Life application authorizations valid 30 months. Adverse decision reasons within 21 business days of a written request</td><td><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_58/Article_39.html">Article 39</a></td></tr>
+          <tr><td>Continuing education</td><td>Up to 24 credit hours every 2 years; 4 months to catch up with a $75 fee; no NC CE for nonresidents</td><td><a href="https://www.ncdoi.gov/licensees/agent-and-adjuster-licensing/continuing-education-agents-and-adjusters">NCDOI</a></td></tr>
+        </tbody>
+      </table></div>
+      <p>North Carolina repealed its older annuity suitability statute effective January 1, 2023. Check your course text for the current annuity best-interest and training rules.</p>
+    </section>
+
     <!-- Numbers -->
     <section class="topic" id="numbers" style="--c:var(--indigo)">
       <div class="topic-head">
@@ -693,7 +790,7 @@ td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
         <tbody>
           <tr><td class="num">1945</td><td>McCarran-Ferguson Act: states regulate insurance</td></tr>
           <tr><td class="num">2 years</td><td>Incontestability period; suicide clause</td></tr>
-          <tr><td class="num">5 years</td><td>Reinstatement window <span class="verify">Verify</span></td></tr>
+          <tr><td class="num">5 years</td><td>Reinstatement window after default</td></tr>
           <tr><td class="num">10 days</td><td>Minimum free-look period</td></tr>
           <tr><td class="num">30 days</td><td>Notice before a policy can lapse <span class="verify">Verify</span></td></tr>
           <tr><td class="num">31 days</td><td>Group life conversion period</td></tr>
@@ -718,7 +815,18 @@ td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
           <tr><td class="num">25%</td><td>Borrowing above this share of loan value counts as replacement</td></tr>
           <tr><td class="num">$1,000</td><td>NC maximum for industrial life <span class="verify">Verify</span></td></tr>
           <tr><td class="num">15 days</td><td>Insurer files a new agent's appointment after the first application</td></tr>
-          <tr><td class="num">10 business days</td><td>Licensee reports a criminal conviction <span class="verify">Verify</span></td></tr>
+          <tr><td class="num">10 days</td><td>Licensee reports a criminal conviction</td></tr>
+          <tr><td class="num">10 business days</td><td>Licensee reports a new home or email address</td></tr>
+          <tr><td class="num">31 days</td><td>Grace period for life premiums (after the first)</td></tr>
+          <tr><td class="num">$300,000</td><td>NC guaranty association limit per life, including cash values</td></tr>
+          <tr><td class="num">15 days</td><td>Annuity free look if disclosures weren't given at application</td></tr>
+          <tr><td class="num">18</td><td>Minimum age for a resident producer license</td></tr>
+          <tr><td class="num">180 days</td><td>Longest temporary producer license</td></tr>
+          <tr><td class="num">30 months</td><td>Life application information authorization stays valid</td></tr>
+          <tr><td class="num">21 business days</td><td>Insurer gives reasons for an adverse underwriting decision after a written request</td></tr>
+          <tr><td class="num">24 hours / 2 years</td><td>Producer continuing education (4 months to catch up, $75 fee)</td></tr>
+          <tr><td class="num">59½ / 10%</td><td>Federal penalty on annuity earnings taken out before 59½</td></tr>
+          <tr><td class="num">6 months</td><td>Insurer may defer paying cash value or a loan</td></tr>
           <tr><td class="num">30 / 15 / 30 days</td><td>Ending an appointment: tell the Commissioner / tell the agent / agent responds</td></tr>
         </tbody>
       </table></div>

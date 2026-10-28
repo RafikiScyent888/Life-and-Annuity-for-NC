@@ -99,6 +99,16 @@
   font-size: 0.85rem;
   color: var(--muted);
 }
+.tags { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.new-tag {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--fg);
+  font-weight: 700;
+}
+.links { display: inline-flex; flex-wrap: wrap; gap: 4px 14px; }
 .part-tag {
   display: inline-flex;
   align-items: center;
@@ -272,7 +282,7 @@ details.jump summary { cursor: pointer; font-weight: 700; }
   <div class="wrap">
     <p class="eyebrow">North Carolina · Life &amp; Annuity license exam</p>
     <h1>Life &amp; Annuity Practice Test</h1>
-    <p class="lede">100 questions in seven color-coded parts, from red to violet. Choose an answer to see whether you're right and why.</p>
+    <p class="lede">150 questions in seven color-coded parts, from red to violet. Questions 101–150 cover topics from the official NC exam outline, each with a source. Choose an answer to see whether you're right and why.</p>
     <div class="spectrum-wrap">
       <div class="spectrum" id="spectrum" role="img" aria-label="Progress by part"></div>
       <div class="spectrum-legend" id="legend"></div>
@@ -304,7 +314,7 @@ details.jump summary { cursor: pointer; font-weight: 700; }
 </main>
 
 <footer class="wrap foot">
-  <p>Built from personal study notes. Check North Carolina deadlines and dollar amounts against your course materials. Your progress is saved in this browser only. Each answer links to its topic in the <a href="study-guide.html">study guide</a>.</p>
+  <p>Questions 1–100 come from personal study notes. Questions 101–150 were written from the <a href="https://www.ncdoi.gov/documents/company-licensing/nc-insurance-licensing-examination-candidate-guide/open">NC Department of Insurance exam content outline</a> (effective March 15, 2024), NC General Statutes and federal rules; each links to its source. Check North Carolina deadlines and dollar amounts against your course materials. Your progress is saved in this browser only. Each answer links to its topic in the <a href="study-guide.html">study guide</a>.</p>
 </footer>
 
 <script>
@@ -328,18 +338,40 @@ const TOPICS = {
   7: "Annuities",
   8: "Business uses and retirement plans",
   9: "Social Security",
-  10: "North Carolina law and ethics"
+  10: "North Carolina law and ethics",
+  11: "Extra topics from the NC exam outline"
+};
+
+// Sources for questions checked against the official outline, NC statutes and federal rules
+const NCGS = s => `https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_58/GS_${s}.html`;
+const NCART = a => `https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_58/Article_${a}.html`;
+const SRC = {
+  outline: { label: "NC Life exam content outline (NCDOI, eff. March 15, 2024)", url: "https://www.ncdoi.gov/documents/company-licensing/nc-insurance-licensing-examination-candidate-guide/open" },
+  contract: { label: "G.S. 58-1-10", url: NCGS("58-1-10") },
+  provisions: { label: "G.S. 58-58-22", url: NCGS("58-58-22") },
+  reporting: { label: "G.S. 58-2-69", url: NCGS("58-2-69") },
+  licensing: { label: "G.S. Chapter 58, Article 33", url: NCART("33") },
+  unauthorized: { label: "G.S. 58-33-95", url: NCGS("58-33-95") },
+  solicitation: { label: "G.S. Chapter 58, Article 60", url: NCART("60") },
+  loans: { label: "G.S. 58-61-10", url: NCART("61") },
+  guaranty: { label: "G.S. 58-62-21", url: NCGS("58-62-21") },
+  privacy: { label: "G.S. Chapter 58, Article 39", url: NCART("39") },
+  ce: { label: "NCDOI continuing education page", url: "https://www.ncdoi.gov/licensees/agent-and-adjuster-licensing/continuing-education-agents-and-adjusters" },
+  irc72: { label: "26 U.S.C. § 72", url: "https://www.law.cornell.edu/uscode/text/26/72" },
+  irc1035: { label: "26 U.S.C. § 1035", url: "https://www.law.cornell.edu/uscode/text/26/1035" },
+  irs: { label: "IRS: life insurance proceeds", url: "https://www.irs.gov/faqs/interest-dividends-other-types-of-income/life-insurance-disability-insurance-proceeds" },
+  finra: { label: "FINRA Series 6", url: "https://www.finra.org/registration-exams-ce/qualification-exams/series6" }
 };
 
 const QS = [];
-function mc(part, q, opts, ans, why, topic) {
-  QS.push({ id: QS.length + 1, part, type: "mc", q, opts, ans: "ABCD".indexOf(ans), why, topic });
+function mc(part, q, opts, ans, why, topic, src) {
+  QS.push({ id: QS.length + 1, part, type: "mc", q, opts, ans: "ABCD".indexOf(ans), why, topic, src });
 }
-function tf(q, ans, why, topic) {
-  QS.push({ id: QS.length + 1, part: "F", type: "tf", q, opts: ["True", "False"], ans: ans ? 0 : 1, why, topic });
+function tf(q, ans, why, topic, src) {
+  QS.push({ id: QS.length + 1, part: "F", type: "tf", q, opts: ["True", "False"], ans: ans ? 0 : 1, why, topic, src });
 }
-function sa(q, model, topic) {
-  QS.push({ id: QS.length + 1, part: "G", type: "sa", q, model, topic });
+function sa(q, model, topic, src) {
+  QS.push({ id: QS.length + 1, part: "G", type: "sa", q, model, topic, src });
 }
 
 // Part A: Insurance basics, risk and contracts
@@ -425,9 +457,9 @@ mc("D", "An employee leaving a group life plan can convert to individual whole l
 mc("E", "An agent offers a prospect a $50 gift card, not stated in the policy, to buy the policy. This is:", ["Twisting", "Rebating", "Defamation", "Commingling"], "B", "Offering anything of value not in the policy to induce a sale is rebating.", 10);
 mc("E", "An agent misrepresents a client's current policy to get them to drop it and buy a new one. This is:", ["Rebating", "Controlled business", "Twisting", "Fair replacement"], "C", "Misrepresenting to replace a policy is twisting.", 10);
 mc("E", "An agent deposits client premiums in their personal checking account. This is:", ["Rebating", "Defamation", "Sliding", "Commingling"], "D", "Mixing premiums with personal funds is commingling.", 10);
-mc("E", "In NC, a licensee who unknowingly represents an unauthorized insurer commits a:", ["Class 1 misdemeanor", "Class H felony", "Civil infraction only", "No offense"], "A", "Unknowingly representing an unauthorized insurer is a Class 1 misdemeanor.", 10);
-mc("E", "In NC, a licensee who knowingly represents an unauthorized insurer commits a:", ["Class 1 misdemeanor", "Class H felony", "Civil infraction only", "No offense"], "B", "Knowingly representing an unauthorized insurer is a Class H felony.", 10);
-mc("E", "An NC licensee must report a criminal conviction to the Commissioner within:", ["5 business days", "30 days", "10 business days", "60 days"], "C", "10 business days, per the study notes. Administrative actions and prosecutions are 30 days.", 10);
+mc("E", "In NC, a licensee who unknowingly represents an unauthorized insurer commits a:", ["Class 1 misdemeanor", "Class H felony", "Civil infraction only", "No offense"], "A", "Unknowingly representing an unauthorized insurer is a Class 1 misdemeanor.", 10, SRC.unauthorized);
+mc("E", "In NC, a licensee who knowingly represents an unauthorized insurer commits a:", ["Class 1 misdemeanor", "Class H felony", "Civil infraction only", "No offense"], "B", "If the licensee knew or should have known the insurer was unauthorized, it's a Class H felony.", 10, SRC.unauthorized);
+mc("E", "An NC licensee must report a criminal conviction to the Commissioner within:", ["5 business days", "30 days", "10 days", "60 days"], "C", "Within 10 days after the conviction. A new home or email address is due within 10 business days.", 10, SRC.reporting);
 mc("E", "An insurer that terminates an agent's appointment must notify the Commissioner within:", ["10 days", "15 days", "60 days", "30 days"], "D", "The insurer tells the Commissioner within 30 days, then the agent within 15 days after that.", 10);
 mc("E", "The maximum fixed interest rate on life policy loans under NC law is:", ["8%", "6%", "10%", "12%"], "A", "The NC maximum fixed policy loan rate is 8%.", 10);
 mc("E", "The notice regarding replacement must be given to the applicant:", ["At policy delivery", "Within 30 days of issue", "At the time of application", "Only if the applicant asks"], "C", "The replacement notice is given at the time of application.", 10);
@@ -455,6 +487,66 @@ sa("Name the four elements of a legal contract.", "CLOC: Competent parties, Lega
 sa("Explain the difference between a conditional receipt and a binding receipt.", "A conditional receipt dates coverage back to the application (or exam) only if the applicant qualifies as applied for. A binding receipt gives immediate coverage until the insurer decides, and is used sparingly in life insurance.", 6);
 sa("Tom is 80% vested in $10,000 of employer contributions when he leaves his job. How much of the employer money does he keep, and how much does he forfeit?", "He keeps $8,000 and forfeits $2,000. His own contributions are always 100% his.", 8);
 sa("Explain the difference between moral and morale hazard, with one example of each.", "Moral hazard is intentional dishonesty, such as arson or faking a claim. Morale hazard is carelessness because you're insured, such as leaving the car unlocked.", 2);
+
+// Questions 101–150: topics from the official NC Life exam outline that the notes didn't cover.
+// They are numbered after 100 so saved progress and links to questions 1–100 stay the same.
+// Part A
+mc("A", "Under NC law, a contract of insurance is an agreement in which the insurer is bound to pay money or do something of value for the insured as:", ["A gift to the insured's estate", "An investment return on premiums", "An indemnity or reimbursement for loss or injury to something the other party has an interest in", "A loan secured by the policy"], "C", "That's the definition in G.S. 58-1-10.", 11, SRC.contract);
+mc("A", "A proposed insured asks a healthier friend to take the medical exam in their place. This is:", ["Adverse selection", "Impersonation", "Twisting", "Rebating"], "B", "Someone posing as the applicant is impersonation, a form of fraud that lets the insurer void the contract.", 11, SRC.outline);
+mc("A", "An applicant deliberately doesn't mention a heart condition the insurer would need to know about. This is:", ["Concealment", "Estoppel", "Waiver", "A warranty"], "A", "Concealment is withholding a material fact. It can let the insurer void the policy.", 11, SRC.outline);
+mc("A", "Which group gives an insurer the most reliable prediction of losses?", ["10 similar homes", "One very expensive home", "10,000 homes of every age, size and type mixed together", "10,000 similar homes"], "D", "The law of large numbers works best with many exposure units that are similar (homogeneous).", 2, SRC.outline);
+// Part B
+mc("B", "A universal life policy that pays the face amount plus the cash value uses which death benefit option?", ["Option A (level)", "Option B (increasing)", "Return of premium option", "Corridor option"], "B", "Option A pays a level face amount that includes the cash value. Option B pays the face amount plus the cash value, so the benefit grows.", 11, SRC.outline);
+mc("B", "In universal life, the premium the insurer suggests paying to keep the policy in force as planned is the:", ["Target premium", "Gross premium", "Minimum deposit", "Loading"], "A", "The target premium is the recommended amount; paying less can shrink the cash value or lapse the policy.", 11, SRC.outline);
+mc("B", "Universal life is called “unbundled” because:", ["It has no cash value", "It can't have riders", "It pays dividends separately from premiums", "Its mortality charges, expense charges and interest credits are shown separately"], "D", "The policy shows each part of the cost and the interest credited separately, so the owner can see where the money goes.", 11, SRC.outline);
+mc("B", "An endowment policy pays the face amount:", ["Only if the insured dies before age 65", "When the insured dies or when the policy matures, whichever comes first", "Only when the insured reaches age 100", "In monthly installments for life"], "B", "An endowment pays at death during the term or, if the insured is still alive, at the maturity date.", 11, SRC.outline);
+mc("B", "A whole life policy with a lower premium for the first few years, then a higher level premium for life, is a:", ["Modified premium policy", "Single premium policy", "Limited-pay policy", "Decreasing term policy"], "A", "Modified premium whole life starts low, then steps up once to a level premium. Graded premium rises gradually each year before leveling.", 11, SRC.outline);
+mc("B", "A juvenile policy whose face amount increases automatically at a set age, such as 21, with no increase in premium and no proof of insurability, is a:", ["Payor benefit policy", "Family maintenance policy", "Guaranteed insurability rider", "Jumping juvenile policy"], "D", "A jumping juvenile policy steps the face amount up, often fivefold, at a set age.", 11, SRC.outline);
+mc("B", "The insured dies during the grace period with a premium still unpaid. The insurer:", ["Pays the death benefit minus the overdue premium", "Pays nothing", "Pays only the cash value", "Refunds premiums paid"], "A", "Coverage continues during the grace period; the unpaid premium is deducted from the death benefit.", 11, SRC.provisions);
+mc("B", "The insured understated their age on the application. At death, the insurer will:", ["Deny the claim", "Pay the full face amount", "Adjust the benefit to what the premiums paid would have bought at the correct age", "Refund all premiums"], "C", "The misstatement of age provision requires an equitable adjustment of benefits or premiums.", 11, SRC.provisions);
+mc("B", "A war exclusion that denies the death benefit only when death is caused by war is the:", ["Status type", "Aviation type", "Suicide type", "Results type"], "D", "Results type excludes deaths caused by war. Status type excludes any death while in military service, whatever the cause.", 11, SRC.outline);
+mc("B", "A policyowner pledges their life policy as security for a bank loan. The lender is repaid first from the proceeds and the rest goes to the beneficiary. This is:", ["Absolute assignment", "Collateral assignment", "Irrevocable beneficiary designation", "Viatical settlement"], "B", "A collateral assignment is partial and temporary. An absolute assignment transfers ownership completely.", 11, SRC.outline);
+mc("B", "Which rider lets the insured buy more coverage at set ages or events, like marriage or a birth, without proving insurability?", ["Guaranteed insurability", "Waiver of premium", "Cost of living", "Accelerated benefits"], "A", "The guaranteed insurability rider (or option) allows future purchases without new evidence of insurability.", 11, SRC.outline);
+mc("B", "Which settlement option pays the beneficiary a set dollar amount each period until the proceeds and interest run out?", ["Interest only", "Fixed period", "Fixed amount", "Life income"], "C", "Fixed amount sets the payment size. Fixed period sets the length of time. Interest only keeps the principal with the insurer; life income pays for life.", 11, SRC.outline);
+mc("B", "A whole life policy lapses with cash value, and the owner never chose a nonforfeiture option. The option that usually applies automatically is:", ["Cash surrender", "Reduced paid-up", "Extended term", "Automatic premium loan"], "C", "Extended term is the usual automatic option when no election is made.", 11, SRC.outline);
+mc("B", "An insurer may delay paying a cash surrender value, or a loan not used to pay premiums, for up to:", ["30 days", "60 days", "6 months", "1 year"], "C", "Policies let the insurer defer these payments for up to 6 months.", 11, SRC.outline);
+// Part C
+mc("C", "The premium wasn't paid with the application. When delivering the policy, the agent should collect the premium and:", ["A signed statement of continued good health", "A new medical exam", "A binding receipt", "A copy of the buyer's tax return"], "A", "On a nonprepaid policy, the agent collects the first premium and a statement that the insured's health hasn't changed.", 11, SRC.outline);
+mc("C", "An insurer issues a policy with a higher premium than the applicant applied for. Legally, this is:", ["Acceptance of the applicant's offer", "A counteroffer the applicant must accept for coverage to begin", "A binding receipt", "A rescission"], "B", "A policy issued other than as applied for is a counteroffer. The applicant accepts it, usually by signing and paying, at delivery.", 11, SRC.outline);
+mc("C", "An applicant submits a completed application with the first premium. Who has made the offer?", ["The agent", "The insurer", "The applicant", "The underwriter"], "C", "The application plus the premium is the applicant's offer. The insurer accepts by issuing the policy as applied for.", 11, SRC.outline);
+mc("C", "An applicant gives a wrong answer on a paper application. The agent should:", ["Erase it and write in the correct answer", "Leave it and tell the underwriter by phone", "Cross it out, write the correct answer and have the applicant initial the change", "Ignore it if it seems minor"], "C", "Corrections are made openly and initialed by the applicant, never erased or whited out.", 11, SRC.outline);
+// Part D
+mc("D", "Which annuity payout option gives the highest monthly income for one person but stops at death with nothing left for a beneficiary?", ["Life with period certain", "Straight (pure) life", "Cash refund", "Joint and survivor"], "B", "Straight life pays the most per month because nothing is guaranteed after the annuitant dies.", 11, SRC.outline);
+mc("D", "An annuitant chose life income with a 10-year period certain and dies after 4 years. The beneficiary receives:", ["Nothing", "A lump sum of the premium paid", "Payments for the remaining 6 years", "Payments for 10 more years"], "C", "The period certain guarantees payments for at least 10 years in total.", 11, SRC.outline);
+mc("D", "A cash refund annuity guarantees that:", ["Payments never decrease", "The buyer can cancel within 15 days", "Payments rise with inflation", "At least the amount paid in will be paid out, with any balance going to a beneficiary in a lump sum"], "D", "If the annuitant dies before receiving what they paid in, the difference goes to the beneficiary. An installment refund pays it out in installments instead.", 11, SRC.outline);
+mc("D", "A married couple wants income that continues as long as either spouse is alive. They should choose a:", ["Straight life annuity", "Period certain annuity", "Joint and survivor annuity", "Cash refund annuity"], "C", "A joint and survivor annuity keeps paying until the second death.", 11, SRC.outline);
+mc("D", "A 52-year-old takes $10,000 of earnings out of a deferred annuity. On top of income tax, federal law adds a penalty of:", ["5%", "10%", "20%", "Nothing"], "B", "The additional tax is 10% before age 59½, unless an exception applies, such as death, disability or substantially equal periodic payments.", 11, SRC.irc72);
+mc("D", "Withdrawals from a non-qualified deferred annuity before annuitization are taxed:", ["As capital gains", "Principal first, tax-free until the basis is used up", "Not at all", "Earnings first, as ordinary income"], "D", "Earnings come out first and are taxed as ordinary income. MECs are taxed the same way.", 11, SRC.irc72);
+mc("D", "Which exchange can be done tax-free under IRC Section 1035?", ["Life insurance to an annuity", "Annuity to life insurance", "Life insurance to a mutual fund", "Annuity to a certificate of deposit"], "A", "Life can go to life, endowment or annuity, and annuity can go to annuity. An annuity can't go to life insurance tax-free.", 11, SRC.irc1035);
+mc("D", "In a buy-sell agreement, each business owner buys a policy on each of the other owners. This is a:", ["Entity (stock redemption) plan", "Key person plan", "Cross-purchase plan", "Split-dollar plan"], "C", "In a cross-purchase plan the owners insure each other. In an entity plan the business owns a policy on each owner.", 11, SRC.outline);
+mc("D", "A small business wants to fund retirement through contributions the employer makes to each employee's own IRA, with very simple paperwork. Which plan fits?", ["SEP (Simplified Employee Pension)", "Keogh", "403(b)", "Defined benefit pension"], "A", "A SEP puts employer contributions into employees' IRAs with little administration.", 11, SRC.outline);
+mc("D", "To sell variable annuities or variable life insurance, a producer needs a life license and:", ["An adjuster license", "A property and casualty license", "A CPA license", "FINRA securities registration, such as the Series 6"], "D", "Variable products are securities, so the seller must also hold a FINRA registration like the Series 6.", 11, SRC.finra);
+// Part E
+mc("E", "Under NC law, the grace period for paying a life insurance premium (other than the first) is:", ["10 days", "30 days", "31 days", "60 days"], "C", "NC requires a 31-day grace period, and the policy stays in force during it.", 11, SRC.provisions);
+mc("E", "The NC Life and Health Insurance Guaranty Association covers life insurance benefits, including cash values, up to:", ["$300,000 per life", "$100,000 per life", "$250,000 per life", "$1,000,000 per life"], "A", "The limit is $300,000 for all life benefits, including cash values, for any one life.", 11, SRC.guaranty);
+mc("E", "In NC, when must a life insurance applicant receive the Buyer's Guide and Policy Summary?", ["Only if they ask", "Before the insurer accepts the initial premium, or with the policy if it has at least a 10-day unconditional refund", "Within 30 days after the policy is issued", "At the first policy anniversary"], "B", "That's the rule in G.S. 58-60-15. Failing to deliver them counts as misrepresentation.", 11, SRC.solicitation);
+mc("E", "An annuity buyer didn't get the disclosure document and buyer's guide at or before application. NC gives them a free-look period of at least:", ["10 days", "20 days", "30 days", "15 days"], "D", "G.S. 58-60-135 requires at least 15 days. For non-face-to-face sales, the documents must be sent within 5 business days of the application.", 11, SRC.solicitation);
+mc("E", "How long does an NC licensee have to report a new home or email address to the Commissioner?", ["10 business days", "30 days", "60 days", "At the next license renewal"], "A", "Address changes are due within 10 business days. A criminal conviction must be reported within 10 days.", 11, SRC.reporting);
+mc("E", "If a life policy uses an adjustable loan interest rate, NC law requires the insurer to set the rate:", ["Every day", "At least once every 12 months, but not more than once every 3 months", "Only when the policy is issued", "Every 5 years"], "B", "G.S. 58-61-10 sets that schedule. A fixed loan rate can't exceed 8%.", 11, SRC.loans);
+mc("E", "The minimum age for a resident producer license in NC is:", ["21", "16", "25", "18"], "D", "An applicant must be at least 18.", 11, SRC.licensing);
+mc("E", "The NC Commissioner may issue a temporary producer license, without an exam, for up to:", ["180 days", "90 days", "1 year", "2 years"], "A", "Temporary licenses last up to 180 days, for example after a producer dies or is called to military service.", 11, SRC.licensing);
+mc("E", "An agent sold a policy for an insurer not authorized in NC, and the insurer fails to pay a claim. The agent is:", ["Not responsible", "Responsible only if convicted of a crime", "Strictly liable for the unpaid claim", "Liable for half the claim"], "C", "The agent is strictly liable for losses or unpaid claims, whether or not there's a criminal case.", 11, SRC.unauthorized);
+mc("E", "Under NC's privacy law, a signed authorization to collect information for a life insurance application is valid for no more than:", ["1 year", "2 years", "30 months", "5 years"], "C", "For life, health and disability applications the limit is 30 months; for property and casualty it's 1 year.", 11, SRC.privacy);
+mc("E", "After an adverse underwriting decision, the applicant asks in writing for the reasons. The insurer must give the specific reasons within:", ["21 business days", "10 days", "60 days", "90 business days"], "A", "The applicant has 90 business days to ask; the insurer then has 21 business days to answer.", 11, SRC.privacy);
+mc("E", "Under NC law, an agent using a pretext interview to get information about an applicant is:", ["Allowed if the applicant is told afterward", "Required for policies over $1 million", "Prohibited, except in limited claim fraud investigations", "Allowed for any underwriting purpose"], "C", "Pretext interviews are banned except in narrow claim investigations where fraud or criminal activity is suspected.", 11, SRC.privacy);
+mc("E", "Before a sales presentation, an NC life agent must tell the prospect:", ["Their commission amount", "Their home address", "The insurer's financial rating", "That they are a life insurance agent and which insurer they represent"], "D", "G.S. 58-60-20 requires this disclosure up front.", 11, SRC.solicitation);
+mc("E", "An NC producer misses the continuing education compliance date. How long do they have to finish the hours, with a $75 reinstatement fee, before the license goes inactive?", ["30 days", "4 months", "1 year", "There is no grace period"], "B", "There's a 4-month window. Producers need up to 24 credit hours every 2 years.", 11, SRC.ce);
+// Part F
+tf("In NC, the policy summary must be titled “Statement of Policy Cost and Benefit Information.”", true, "G.S. 58-60-10 requires that title in at least 10-point bold capitals.", 11, SRC.solicitation);
+tf("An annuity can be exchanged tax-free for a life insurance policy under IRC Section 1035.", false, "Annuity to annuity is allowed. Annuity to life insurance is not.", 11, SRC.irc1035);
+tf("Nonresident producers licensed in NC must meet NC's continuing education requirements.", false, "Nonresident producers have no NC CE requirement; they must stay in good standing in their home state.", 11, SRC.ce);
+// Part G
+sa("Besides taking a lump sum, name the four common settlement options for life insurance proceeds.", "Interest only, fixed period, fixed amount, and life income (single or joint).", 11, SRC.outline);
 
 const KEY = "ncla-quiz-v1";
 const LETTERS = ["A", "B", "C", "D"];
@@ -500,6 +592,7 @@ function h(tag, attrs, ...kids) {
 }
 const $ = sel => document.querySelector(sel);
 const topicLink = t => h("a", { href: `study-guide.html#topic-${t}` }, `Review topic ${t}: ${TOPICS[t]}`);
+const sourceLink = s => s ? h("span", null, "Source: ", h("a", { href: s.url, target: "_blank", rel: "noopener" }, s.label)) : null;
 
 function missedIds() {
   return QS.filter(q => st.answers[q.id] && !st.answers[q.id].correct).map(q => q.id);
@@ -508,6 +601,7 @@ function listFor(filter) {
   let ids;
   if (filter === "all") ids = QS.map(q => q.id);
   else if (filter === "missed") ids = missedIds();
+  else if (filter === "new") ids = QS.filter(q => q.id > 100).map(q => q.id);
   else ids = QS.filter(q => q.part === filter).map(q => q.id);
   if (st.shuffle) {
     ids = ids.slice();
@@ -593,6 +687,8 @@ function renderChips() {
     const s = partStats(k);
     kids.push(chip(k, `${k} · ${p.short}`, p.color, `${s.answered}/${s.total}`));
   }
+  const fresh = QS.filter(q => q.id > 100);
+  kids.push(chip("new", "New from the exam outline", "var(--fg)", `${fresh.filter(q => st.answers[q.id]).length}/${fresh.length}`));
   kids.push(chip("missed", "Missed", "var(--bad)", String(missedIds().length)));
   $("#chips").replaceChildren(...kids);
   $("#shuffle").checked = st.shuffle;
@@ -613,7 +709,9 @@ function renderCard() {
   card.style.cssText = `--c:${p.color}`;
 
   const meta = h("div", { class: "meta" },
-    h("span", { class: "part-tag" }, h("span", { class: "dot" }), `Part ${q.part} · ${p.name}`),
+    h("span", { class: "tags" },
+      h("span", { class: "part-tag" }, h("span", { class: "dot" }), `Part ${q.part} · ${p.name}`),
+      q.id > 100 ? h("span", { class: "new-tag" }, "From the exam outline") : null),
     h("span", { class: "where" }, `Question ${q.id} of ${QS.length}`));
   const qtext = h("h2", { class: "qtext", id: "qtext" }, h("span", { class: "qnum" }, `${q.id}.`), q.q);
   const body = h("div", { class: "card-body" }, meta, qtext);
@@ -636,7 +734,7 @@ function renderCard() {
           h("button", { class: "btn small", type: "button", onclick: () => selfGrade(false) }, "I missed it")));
       } else {
         fb.append(h("div", { class: "fb-foot" },
-          h("span", null, a.correct ? "You marked this one right. " : "You marked this one missed. ", topicLink(q.topic)),
+          h("span", { class: "links" }, h("span", null, a.correct ? "You marked this one right." : "You marked this one missed."), topicLink(q.topic), sourceLink(q.src)),
           h("button", { class: "btn small", type: "button", onclick: () => retry(q.id) }, "Try again")));
       }
       body.append(fb);
@@ -667,7 +765,7 @@ function renderCard() {
       h("p", { class: "fb-title" }, a.correct ? "Correct." : `Not quite. The answer is ${right}.`),
       h("p", { class: "fb-why" }, q.why),
       h("div", { class: "fb-foot" },
-        topicLink(q.topic),
+        h("span", { class: "links" }, topicLink(q.topic), sourceLink(q.src)),
         h("button", { class: "btn small", type: "button", onclick: () => retry(q.id) }, "Try again"))));
   }
   card.replaceChildren(body);
@@ -677,7 +775,7 @@ function renderNav() {
   const n = st.list.length;
   $("#prev").disabled = st.pos <= 0 || !n;
   $("#next").disabled = st.pos >= n - 1 || !n;
-  const label = st.filter === "all" ? "All questions" : st.filter === "missed" ? "Missed" : `Part ${st.filter}`;
+  const label = { all: "All questions", missed: "Missed", new: "New questions" }[st.filter] || `Part ${st.filter}`;
   $("#navpos").textContent = n ? `${label} · ${st.pos + 1} of ${n}` : label;
 }
 
@@ -724,7 +822,7 @@ function renderScore() {
     h("div", null,
       h("h2", null, "Your score"),
       h("div", { class: "big" }, pct == null ? "—" : `${pct}%`),
-      h("p", { class: "sub" }, answered ? `${right} right of ${answered} answered · ${QS.length - answered} left` : `0 of ${QS.length} answered. Aim for 85 or more right.`)),
+      h("p", { class: "sub" }, answered ? `${right} right of ${answered} answered · ${QS.length - answered} left` : `0 of ${QS.length} answered. Aim for 85% or better.`)),
     h("div", { class: "prows" }, rows),
     ...actions);
 }

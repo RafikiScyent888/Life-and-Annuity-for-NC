@@ -112,7 +112,7 @@
   <div class="wrap">
     <p class="eyebrow">North Carolina · Life &amp; Annuity license exam</p>
     <h1 class="home-title">Life &amp; Annuity Exam Prep</h1>
-    <p class="lede">A ten-topic study guide and a 100-question practice test, color-coded so every topic in the guide matches its part of the test.</p>
+    <p class="lede">An eleven-topic study guide and a 150-question practice test, color-coded so every topic in the guide matches its part of the test.</p>
   </div>
 </header>
 
@@ -133,8 +133,8 @@
         <h2>Study guide</h2>
         <p>From insurer types and contract law to annuities, Social Security and North Carolina rules. Tables, common mix-ups and every number worth memorizing.</p>
         <ul class="facts">
-          <li>10 topics</li>
-          <li>29 key numbers</li>
+          <li>11 topics</li>
+          <li>40 key numbers</li>
           <li>5 memory aids</li>
         </ul>
       </div>
@@ -145,22 +145,23 @@
 
     <a class="tile" href="practice-test.html">
       <div class="bands" aria-hidden="true">
-        <span style="--c:var(--red);--w:20"></span>
-        <span style="--c:var(--orange);--w:25"></span>
-        <span style="--c:var(--yellow);--w:10"></span>
-        <span style="--c:var(--green);--w:16"></span>
-        <span style="--c:var(--blue);--w:14"></span>
-        <span style="--c:var(--indigo);--w:10"></span>
-        <span style="--c:var(--violet);--w:5"></span>
+        <span style="--c:var(--red);--w:24"></span>
+        <span style="--c:var(--orange);--w:39"></span>
+        <span style="--c:var(--yellow);--w:14"></span>
+        <span style="--c:var(--green);--w:26"></span>
+        <span style="--c:var(--blue);--w:28"></span>
+        <span style="--c:var(--indigo);--w:13"></span>
+        <span style="--c:var(--violet);--w:6"></span>
       </div>
       <div class="tile-body">
         <p class="tile-kicker">Then practice</p>
         <h2>Practice test</h2>
-        <p>Seven color-coded parts, red to violet. Every answer shows whether you're right, why, and which study guide topic to review.</p>
+        <p>Seven color-coded parts, red to violet. Every answer shows whether you're right, why, and which study guide topic to review. Questions 101–150 cite NC statutes and the official exam outline.</p>
         <ul class="facts">
-          <li>85 multiple choice</li>
-          <li>10 true / false</li>
-          <li>5 short answer</li>
+          <li>131 multiple choice</li>
+          <li>13 true / false</li>
+          <li>6 short answer</li>
+          <li>50 from the official outline</li>
         </ul>
       </div>
       <div class="tile-foot">
@@ -172,13 +173,13 @@
 
   <ol class="how">
     <li style="--c:var(--red)"><span><strong>Read a topic</strong>Each topic has a color. Watch for the “Watch out” boxes.</span></li>
-    <li style="--c:var(--green)"><span><strong>Practice that part</strong>Pick the matching color in the test, or run all 100.</span></li>
+    <li style="--c:var(--green)"><span><strong>Practice that part</strong>Pick the matching color in the test, or run all 150.</span></li>
     <li style="--c:var(--violet)"><span><strong>Retry your misses</strong>“Practice missed” brings back only the questions you got wrong.</span></li>
   </ol>
 </main>
 
 <footer class="wrap foot">
-  <p>Built from personal study notes. Items marked Verify in the guide come only from those notes; confirm North Carolina deadlines and amounts in your course materials.</p>
+  <p>Built from personal study notes, checked against the NC Department of Insurance exam outline and NC General Statutes. Items marked Verify in the guide come only from those notes; confirm North Carolina deadlines and amounts in your course materials.</p>
 </footer>
 
 <script>
@@ -187,7 +188,7 @@ try {
   const answers = s && s.answers ? Object.values(s.answers) : [];
   if (answers.length) {
     const right = answers.filter(a => a.correct).length;
-    document.getElementById("progress").textContent = `${answers.length} of 100 answered · ${right} right`;
+    document.getElementById("progress").textContent = `${answers.length} of 150 answered · ${right} right`;
   }
 } catch (e) { /* storage unavailable */ }
 </script>
