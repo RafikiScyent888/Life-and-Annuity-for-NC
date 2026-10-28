@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NC Life &amp; Annuity Practice Test</title>
+<meta name="description" content="100 practice questions for the North Carolina Life & Annuity license exam, in seven color-coded parts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Practice test layout: a full-width rainbow progress band (one stripe per part),
+   part chips, then the question card with a score panel beside it (stacks on phones). */
+.spectrum-wrap { margin-top: 22px; }
+.spectrum { display: flex; gap: 4px; height: 14px; }
+.seg {
+  position: relative;
+  min-width: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--c) 24%, var(--surface-2));
+}
+.seg > span { position: absolute; inset: 0 auto 0 0; background: var(--c); transition: width 0.3s ease; }
+.spectrum-legend {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.spectrum-legend > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+@media (max-width: 600px) { .lg-n { display: none; } }
+
+/* Layout */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px 24px;
+  padding-block: 18px 40px;
+}
+.parts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+#chips { display: contents; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Part chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.chip:hover { border-color: var(--c, var(--fg)); }
+.chip[aria-pressed="true"] {
+  border-color: var(--c, var(--fg));
+  background: color-mix(in srgb, var(--c, var(--fg)) 14%, var(--surface));
+  box-shadow: inset 0 0 0 1px var(--c, var(--fg));
+}
+.count { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 7px 4px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.toggle input { width: 18px; height: 18px; accent-color: var(--indigo); }
+
+/* Question card */
+.stage { min-width: 0; display: grid; gap: 14px; align-content: start; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.card::before { content: ""; display: block; height: 7px; background: var(--c); }
+.card-body { padding: 20px clamp(16px, 3vw, 26px) 22px; }
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.part-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 11px 3px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 16%, var(--surface));
+  color: var(--fg);
+  font-weight: 700;
+}
+.where { font-variant-numeric: tabular-nums; }
+.qtext {
+  margin: 14px 0 18px;
+  font: 700 clamp(1.1rem, 2.3vw, 1.32rem)/1.45 var(--body);
+  text-wrap: pretty;
+}
+.qnum { font-family: var(--display); font-weight: 800; color: var(--muted); margin-right: 6px; }
+.options { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.opt {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  text-align: left;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.opt:hover:not(:disabled) { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, var(--surface)); }
+.opt:disabled { cursor: default; }
+.key {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-weight: 700;
+}
+.mark { font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+.opt.is-correct { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--surface)); }
+.opt.is-correct .key { background: var(--ok); color: var(--surface); }
+.opt.is-correct .mark { color: var(--ok); }
+.opt.is-wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, var(--surface)); }
+.opt.is-wrong .key { background: var(--bad); color: var(--surface); }
+.opt.is-wrong .mark { color: var(--bad); }
+.opt.is-dim { opacity: 0.55; }
+@media (max-width: 480px) {
+  .opt { grid-template-columns: 2.1rem minmax(0, 1fr); }
+  .mark { grid-column: 2; }
+}
+
+.feedback {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-left: 5px solid var(--ok);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+}
+.feedback.bad { border-left-color: var(--bad); background: color-mix(in srgb, var(--bad) 9%, var(--surface)); }
+.feedback.neutral { border-left-color: var(--c); background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+.fb-title { margin: 0 0 4px; font-weight: 700; }
+.fb-why { margin: 0; }
+.fb-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.sa-label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 700; }
+textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--fg);
+  font: 1rem/1.5 var(--body);
+  resize: vertical;
+}
+.row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+.nav-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.nav-row .btn { white-space: nowrap; }
+.nav-pos { color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; text-align: center; }
+@media (max-width: 520px) { .nav-pos { order: 3; flex-basis: 100%; } }
+.hint { margin: 0; font-size: 0.82rem; color: var(--muted); }
+
+details.jump { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; }
+details.jump summary { cursor: pointer; font-weight: 700; }
+.qgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; margin-top: 12px; }
+.qcell {
+  height: 34px;
+  border: 2px solid var(--c);
+  border-radius: 7px;
+  background: var(--surface);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.qcell.ok { background: color-mix(in srgb, var(--ok) 26%, var(--surface)); }
+.qcell.bad { background: color-mix(in srgb, var(--bad) 26%, var(--surface)); text-decoration: line-through; }
+.qcell.current { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--fg); }
+
+/* Score panel */
+.score {
+  align-self: start;
+  position: sticky;
+  top: 16px;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+@media (max-width: 860px) { .score { position: static; } }
+.score h2 { margin: 0; font: 800 1.05rem var(--display); }
+.big { font: 800 2.7rem/1 var(--display); font-variant-numeric: tabular-nums; }
+.sub { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.prows { display: grid; gap: 10px; }
+.prow {
+  display: grid;
+  grid-template-columns: 11px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 0.86rem;
+}
+.prow .pname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prow .pnum { color: var(--muted); font-variant-numeric: tabular-nums; }
+.pbar {
+  grid-column: 2 / -1;
+  display: flex;
+  height: 7px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--c) 18%, var(--surface-2));
+}
+.pbar .right { background: var(--c); }
+.pbar .wrong { background: color-mix(in srgb, var(--c) 45%, var(--surface-2)); }
+.score-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.confirm { margin: 0; font-size: 0.88rem; }
+
+.empty { padding: 28px 24px; text-align: center; }
+.empty h2 { margin: 0 0 6px; font: 800 1.3rem var(--display); }
+.empty p { margin: 0; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="rainbow-rule" aria-hidden="true"></div>
+<nav class="wrap topnav" aria-label="Site">
+  <a class="brand" href="./"><span class="dot rainbow" aria-hidden="true"></span>NC Life &amp; Annuity Exam Prep</a>
+  <div class="navlinks">
+    <a href="study-guide.html">Study guide</a>
+    <a href="practice-test.html" aria-current="page">Practice test</a>
+  </div>
+</nav>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">North Carolina · Life &amp; Annuity license exam</p>
+    <h1>Life &amp; Annuity Practice Test</h1>
+    <p class="lede">100 questions in seven color-coded parts, from red to violet. Choose an answer to see whether you're right and why.</p>
+    <div class="spectrum-wrap">
+      <div class="spectrum" id="spectrum" role="img" aria-label="Progress by part"></div>
+      <div class="spectrum-legend" id="legend"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap layout">
+  <div class="parts" aria-label="Choose which questions to practice">
+    <div id="chips"></div>
+    <label class="toggle" for="shuffle"><input type="checkbox" id="shuffle"> Shuffle order</label>
+  </div>
+
+  <section class="stage" aria-live="polite">
+    <article class="card" id="card"></article>
+    <div class="nav-row">
+      <button class="btn" type="button" id="prev">← Previous</button>
+      <span class="nav-pos" id="navpos"></span>
+      <button class="btn primary" type="button" id="next">Next →</button>
+    </div>
+    <p class="hint">Keys: <kbd>A</kbd>–<kbd>D</kbd> or <kbd>1</kbd>–<kbd>4</kbd> to answer, <kbd>T</kbd> / <kbd>F</kbd> for true or false, <kbd>←</kbd> <kbd>→</kbd> to move.</p>
+    <details class="jump" id="jump">
+      <summary>Jump to any question</summary>
+      <div class="qgrid" id="qgrid"></div>
+    </details>
+  </section>
+
+  <aside class="score" id="score" aria-label="Your score"></aside>
+</main>
+
+<footer class="wrap foot">
+  <p>Built from personal study notes. Check North Carolina deadlines and dollar amounts against your course materials. Your progress is saved in this browser only. Each answer links to its topic in the <a href="study-guide.html">study guide</a>.</p>
+</footer>
+
+<script>
+const PARTS = {
+  A: { name: "Basics, risk & contracts", short: "Basics & contracts", color: "var(--red)" },
+  B: { name: "Life policies & riders", short: "Life policies", color: "var(--orange)" },
+  C: { name: "Underwriting & delivery", short: "Underwriting", color: "var(--yellow)" },
+  D: { name: "Annuities, retirement & Social Security", short: "Annuities & retirement", color: "var(--green)" },
+  E: { name: "North Carolina law & ethics", short: "NC law", color: "var(--blue)" },
+  F: { name: "True or false", short: "True / false", color: "var(--indigo)" },
+  G: { name: "Short answer", short: "Short answer", color: "var(--violet)" }
+};
+
+const TOPICS = {
+  1: "Insurers and how they are organized",
+  2: "Risk, loss and hazards",
+  3: "Contracts, agency and negligence",
+  4: "Life insurance policies",
+  5: "Riders, provisions and options",
+  6: "Underwriting and delivery",
+  7: "Annuities",
+  8: "Business uses and retirement plans",
+  9: "Social Security",
+  10: "North Carolina law and ethics"
+};
+
+const QS = [];
+function mc(part, q, opts, ans, why, topic) {
+  QS.push({ id: QS.length + 1, part, type: "mc", q, opts, ans: "ABCD".indexOf(ans), why, topic });
+}
+function tf(q, ans, why, topic) {
+  QS.push({ id: QS.length + 1, part: "F", type: "tf", q, opts: ["True", "False"], ans: ans ? 0 : 1, why, topic });
+}
+function sa(q, model, topic) {
+  QS.push({ id: QS.length + 1, part: "G", type: "sa", q, model, topic });
+}
+
+// Part A: Insurance basics, risk and contracts
+mc("A", "Which type of insurer issues participating policies?", ["Mutual company", "Stock company", "Alien insurer", "Reciprocal exchange"], "A", "Mutual companies are owned by policyholders and issue participating policies.", 1);
+mc("A", "An insurer incorporated in Ohio that sells policies in North Carolina is, in NC, a(n):", ["Domestic insurer", "Alien insurer", "Nonadmitted insurer", "Foreign insurer"], "D", "Foreign means incorporated in another US state. Domestic is this state; alien is outside the US.", 1);
+mc("A", "Under a reinsurance agreement, which company stays responsible to the policyowner?", ["The reinsurer", "The state guaranty association", "The ceding insurer", "The assuming insurer"], "C", "The ceding (original) insurer stays responsible to the client.", 1);
+mc("A", "Reinsurance that applies automatically to a broad class of risks is:", ["Treaty", "Facultative", "Surplus lines", "Retention"], "A", "Treaty is broad and automatic; facultative is case by case.", 1);
+mc("A", "Who is NOT licensed to sell insurance but introduces clients to a producer?", ["Broker", "Agent", "Field underwriter", "Solicitor"], "D", "Solicitors can't sell; they refer clients to a producer.", 1);
+mc("A", "The McCarran-Ferguson Act of 1945 established that:", ["The federal government regulates insurance", "Agents need a federal license", "States regulate the business of insurance", "All insurers must be mutual companies"], "C", "McCarran-Ferguson left insurance regulation to the states.", 1);
+mc("A", "Which of these is an insurable risk?", ["Buying stock", "A home burning down", "Betting on a game", "Opening a new business"], "B", "Only pure risk (chance of loss, no gain) is insurable. The others are speculative.", 2);
+mc("A", "A policyholder stops locking their car because “insurance will cover it.” This is:", ["Moral hazard", "Physical hazard", "Speculative risk", "Morale hazard"], "D", "Morale hazard is carelessness because you're insured. Moral hazard is intentional dishonesty.", 2);
+mc("A", "Frayed electrical wiring in a building is a:", ["Physical hazard", "Moral hazard", "Morale hazard", "Peril"], "A", "A physical hazard is a tangible condition you can see or measure.", 2);
+mc("A", "Buying an insurance policy is which risk management method?", ["Avoidance", "Transfer", "Retention", "Reduction"], "B", "Insurance transfers risk to another party by contract.", 2);
+mc("A", "Choosing a higher deductible to lower the premium is an example of risk:", ["Sharing", "Avoidance", "Retention", "Transfer"], "C", "A deductible is risk you deliberately keep.", 2);
+mc("A", "According to the law of large numbers:", ["As the number of insureds increases, the number of losses decreases", "Losses can be eliminated with enough insureds", "Every insured pays the same premium", "The larger the group of similar exposure units, the more predictable losses become"], "D", "The law of large numbers improves predictability. The first choice is the classic false statement.", 2);
+mc("A", "Adverse selection refers to:", ["Higher-risk people being more likely to seek insurance", "An insurer rejecting an applicant", "Spreading risk among many people", "An agent choosing which insurer to use"], "A", "Higher-risk people seek coverage more, so claims run higher than expected. Underwriting guards against it.", 2);
+mc("A", "Which is an exception to the principle of indemnity?", ["Actual cash value property coverage", "Life insurance", "Liability coverage", "Medical expense reimbursement"], "B", "Life insurance pays a stated amount, not a measured loss.", 2);
+mc("A", "Which is NOT one of the four elements of a legal contract?", ["Warranty", "Consideration", "Competent parties", "Legal purpose"], "A", "The elements are CLOC: Competent parties, Legal purpose, Offer and acceptance, Consideration.", 3);
+mc("A", "A contract in which one party may receive much more than it paid in is:", ["Unilateral", "Conditional", "Aleatory", "Adhesive"], "C", "Aleatory means an unequal exchange of value.", 3);
+mc("A", "The insurer writes the policy, the insured must take it as written, and unclear wording is read in the insured's favor. This describes a contract of:", ["Indemnity", "Adhesion", "Utmost good faith", "Bilateral agreement"], "B", "That's a contract of adhesion: take it or leave it, with ambiguities favoring the insured.", 3);
+mc("A", "Statements on an application that the applicant believes to be true are:", ["Warranties", "Concealments", "Estoppels", "Representations"], "D", "Representations are believed true; warranties are guaranteed true.", 3);
+mc("A", "An agent forgets to submit a client's application. This is:", ["Simple negligence", "Gross negligence", "Willful and wanton negligence", "Fraud"], "A", "A one-time failure to act reasonably is simple negligence.", 3);
+mc("A", "Authority that the public reasonably believes an agent has, based on the insurer's actions, is:", ["Express", "Implied", "Fiduciary", "Apparent"], "D", "Apparent authority comes from the public's reasonable belief. Express is written; implied is needed to do the express duties.", 3);
+
+// Part B: Life policies, riders and provisions
+mc("B", "Which policy gives pure, temporary protection at the lowest premium for a set period?", ["Whole life", "Universal life", "Level term", "Limited-pay life"], "C", "Level term is temporary, pure protection at the lowest premium.", 4);
+mc("B", "Credit life insurance is usually written as:", ["Decreasing term", "Level term", "Whole life", "Variable life"], "A", "Credit life is decreasing term that shrinks with the debt.", 4);
+mc("B", "A term policy is converted to whole life, and the new premium is based on the insured's age at conversion. This is:", ["Original age", "Issue age", "Attained age", "Age 65"], "C", "Attained age is the insured's age at conversion, so the premium is higher.", 4);
+mc("B", "Compared with straight whole life, a 20-pay life policy:", ["Has lower annual premiums", "Builds cash value faster", "Expires after 20 years", "Has no cash value"], "B", "Premiums are packed into 20 years, so cash value builds faster. The premiums are higher.", 4);
+mc("B", "A policy funded so fast that it fails the IRS 7-pay test becomes a:", ["Modified endowment contract (MEC)", "Variable life policy", "Industrial policy", "Survivorship policy"], "A", "Failing the 7-pay test makes it a MEC. Loans and withdrawals become taxable.", 4);
+mc("B", "In universal life, the pure insurance protection above the cash value is called the:", ["Loading", "Reserve", "Surrender charge", "Corridor"], "D", "The corridor is the pure protection above the cash value.", 4);
+mc("B", "Which policy's cash value and death benefit rise and fall with separate-account investments?", ["Indexed universal life", "Variable life", "Adjustable life", "Limited-pay life"], "B", "Variable life follows its separate-account (equity) investments, and the owner bears the risk.", 4);
+mc("B", "A survivorship (joint and survivor) policy pays the death benefit:", ["At the first death", "At each death", "At the second death", "When both insureds reach age 100"], "C", "Survivorship, or second-to-die, pays at the last death.", 4);
+mc("B", "A policyowner transfers all ownership rights to another person. This is:", ["Collateral assignment", "Irrevocable beneficiary designation", "Viatical settlement", "Absolute assignment"], "D", "An absolute assignment transfers full ownership and control.", 5);
+mc("B", "A terminally ill insured expected to live 1–2 years wants part of the death benefit now. Which rider allows this?", ["Accelerated benefits", "Accidental death benefit", "Waiver of premium", "Payor benefit"], "A", "Accelerated benefits pay part of the death benefit early for a terminal illness.", 5);
+mc("B", "The payor benefit rider is most often attached to a:", ["Group term policy", "Credit life policy", "Juvenile policy", "Annuity"], "C", "The payor rider goes on juvenile policies and waives premiums if the payor dies or is disabled.", 5);
+mc("B", "Under the automatic premium loan provision, an unpaid premium is:", ["Waived permanently", "Paid by the agent", "Deducted only from the death benefit", "Borrowed from the cash value at the end of the grace period"], "D", "The automatic premium loan borrows the premium from cash value when the grace period ends.", 5);
+mc("B", "Which is NOT a dividend option?", ["Paid-up additions", "Extended term", "One-year term", "Reduction of premium"], "B", "Extended term is a nonforfeiture option. Dividend options are CRAPO: Cash, Reduction of premium, Accumulate at interest, Paid-up additions, One-year term.", 5);
+mc("B", "A policyowner stops paying premiums, and the cash value buys term coverage for the full face amount for as long as it lasts. This nonforfeiture option is:", ["Extended term", "Reduced paid-up", "Cash surrender", "Automatic premium loan"], "A", "Extended term keeps the full face amount for a shorter time. Reduced paid-up keeps coverage for life at a smaller amount.", 5);
+mc("B", "After a life policy has been in force for 2 years, the insurer generally can't void it for misstatements on the application. This is the:", ["Entire contract provision", "Suicide clause", "Incontestability clause", "Reinstatement provision"], "C", "The incontestability clause applies after 2 years.", 5);
+mc("B", "An insured dies by suicide 14 months after the policy was issued. The insurer will:", ["Pay the full face amount", "Refund the premiums paid", "Pay nothing at all", "Pay half the face amount"], "B", "Suicide within 2 years of issue means premiums are refunded, with no death benefit.", 5);
+mc("B", "Under the entire contract provision, the contract consists of:", ["The policy only", "The application only", "The policy plus the agent's notes", "The policy, the application and any endorsements"], "D", "The policy, the application and the endorsements make up the entire contract.", 5);
+mc("B", "The insured and the primary beneficiary die in the same accident and no one can tell who died first. With no common disaster clause, the Uniform Simultaneous Death Act pays the proceeds:", ["As if the insured survived, so to the contingent beneficiary or the insured's estate", "As if the beneficiary survived", "Split between both estates", "To the state"], "A", "The act presumes the insured outlived the beneficiary.", 5);
+mc("B", "Which is NOT a factor in calculating a life insurance premium?", ["Mortality", "Morbidity", "Interest", "Expense"], "B", "Life premiums use mortality, interest and expense. Morbidity (illness rates) is for health insurance.", 4);
+mc("B", "Gross premium equals:", ["Mortality minus interest", "Net premium minus dividends", "Net premium plus loading for expenses", "Cash value plus interest"], "C", "Gross premium = net premium + loading. Net single premium = mortality − interest.", 4);
+mc("B", "Life insurance death proceeds paid in a lump sum to a beneficiary are generally:", ["Fully taxable as income", "Taxed as a capital gain", "Taxable only above $255", "Free of income tax"], "D", "Lump-sum death proceeds are income-tax free. Interest earned on proceeds held by the insurer is taxable.", 5);
+mc("B", "A revocable beneficiary can be changed by the policyowner:", ["At any time", "Only with the beneficiary's consent", "Only on the policy anniversary", "Never"], "A", "A revocable beneficiary can be changed at any time. An irrevocable one must consent.", 5);
+mc("B", "Level premiums are possible for whole life because:", ["The insurer guarantees dividends", "Early-year premiums exceed the cost of protection, building a reserve", "Premiums increase each year", "Cash value is paid out each year"], "B", "Overpaying in the early years builds the reserve that keeps later premiums level.", 4);
+mc("B", "A client wants lifetime coverage but wants to finish paying premiums before retirement. The best fit is:", ["Decreasing term", "Renewable term", "Limited-pay life", "Credit life"], "C", "Limited-pay life gives lifetime coverage with a shorter payment period.", 4);
+mc("B", "Investors buy a policy on a stranger's life (STOLI). Which contract element does this violate?", ["Consideration", "Offer and acceptance", "Competent parties", "Legal purpose (insurable interest)"], "D", "Without insurable interest, the contract has no legal purpose.", 3);
+
+// Part C: Underwriting and delivery
+mc("C", "The agent who starts the underwriting process is called the:", ["Field underwriter", "Actuary", "Claims adjuster", "Service representative"], "A", "The agent is the field underwriter.", 6);
+mc("C", "A report on the applicant from their own doctor is a(n):", ["MIB report", "Inspection report", "Attending physician statement (APS)", "Buyer's guide"], "C", "An APS comes from the applicant's own doctor. The MIB shares medical data among insurers.", 6);
+mc("C", "An applicant pays the first premium and receives a conditional receipt. Coverage begins:", ["When the policy is delivered", "On the application date (or exam date), if the applicant qualifies as applied for", "Immediately, no matter what underwriting finds", "When the agent signs the application"], "B", "Conditional receipt coverage dates back only if the applicant qualifies as applied for.", 6);
+mc("C", "Which receipt gives immediate coverage until the insurer accepts or rejects the application?", ["Conditional receipt", "Premium receipt", "Policy summary", "Binding receipt"], "D", "A binding receipt gives immediate temporary coverage. It's used sparingly in life insurance.", 6);
+mc("C", "No premium was paid with the application. Coverage begins:", ["On the application date", "When underwriting approves", "When the policy is delivered and the first premium is collected", "On the date of the medical exam"], "C", "No premium means no coverage until delivery and payment in full.", 6);
+mc("C", "For life insurance, insurable interest must exist:", ["At the time of application", "At the time of death", "At both application and death", "Only when a claim is filed"], "A", "For life insurance, insurable interest is needed at application only.", 6);
+mc("C", "Under the Fair Credit Reporting Act, an applicant must be:", ["Given a copy of their MIB file automatically", "Told that a consumer report on their background may be requested", "Allowed to choose the underwriter", "Refunded any premium paid"], "B", "The FCRA requires notice that a consumer report may be requested.", 1);
+mc("C", "An applicant who is a better-than-average risk is classified as:", ["Standard", "Substandard", "Preferred", "Rated"], "C", "Preferred is better than average; standard is average; substandard (rated) is worse.", 6);
+mc("C", "The minimum free-look period for an individual life policy is:", ["10 days", "3 days", "31 days", "60 days"], "A", "The minimum free look is 10 days after delivery, with a full refund.", 6);
+mc("C", "Unless a question says otherwise, you should assume:", ["The insured and the owner are different people", "The beneficiary is the applicant", "The agent pays the premium", "The owner, applicant, payor and insured are the same person"], "D", "On the exam, the owner, applicant, payor and insured are the same person unless stated.", 6);
+
+// Part D: Annuities, retirement, business uses and Social Security
+mc("D", "Annuities protect against the risk of:", ["Dying too soon", "Disability", "Living too long", "Liability claims"], "C", "Annuities cover the risk of outliving your money.", 7);
+mc("D", "During the accumulation phase of an annuity, who holds the contract rights?", ["The contract owner", "The annuitant", "The beneficiary", "The insurer"], "A", "The contract owner holds the rights during accumulation. The annuitant receives the payout.", 7);
+mc("D", "A single premium immediate annuity (SPIA) begins payments within:", ["30 days", "6 months", "5 years", "12 months"], "D", "A SPIA starts paying within 12 months.", 7);
+mc("D", "An annuity whose interest is linked to a stock market index, but which is not a variable product, is a(n):", ["Variable annuity", "Equity-indexed annuity", "Market value adjusted annuity", "Flexible premium deferred annuity"], "B", "Equity-indexed annuities are fixed products with interest tied to an index.", 7);
+mc("D", "Qualified retirement plans are funded with:", ["Pre-tax dollars", "After-tax dollars", "Employer money only", "Life insurance cash value only"], "A", "Qualified plans use pre-tax dollars. Non-qualified annuities use after-tax dollars.", 7);
+mc("D", "A 403(b) tax-sheltered annuity is available to employees of:", ["Any for-profit corporation", "Sole proprietorships", "Public schools and 501(c)(3) nonprofits", "Federal agencies only"], "C", "403(b) plans are for public schools and 501(c)(3) nonprofits.", 8);
+mc("D", "A Keogh (HR-10) plan is for:", ["Nonprofit employees", "Large corporations", "Government workers", "Self-employed people, who must include eligible employees"], "D", "Keogh plans are for the self-employed and must include eligible employees.", 8);
+mc("D", "Under ERISA, an employee is always 100% vested in:", ["Their own contributions", "Employer contributions", "Profit-sharing contributions", "Nothing until 5 years of service"], "A", "Your own contributions are always 100% vested. Employer money follows a vesting schedule.", 8);
+mc("D", "On an indirect rollover from a qualified profit-sharing plan, the plan must withhold:", ["10%", "25%", "20%", "Nothing"], "C", "20% is withheld for income tax on an indirect rollover.", 8);
+mc("D", "A person 73 or older who fails to take a required minimum distribution owes an IRS excise tax of:", ["10%", "25%", "20%", "50%"], "B", "The penalty for a missed RMD is 25%.", 8);
+mc("D", "A self-employed person pays FICA tax of:", ["6.2%", "7.65%", "12.4%", "15.3%"], "D", "The self-employed pay both halves: 7.65% + 7.65% = 15.3%.", 9);
+mc("D", "Fully insured status for Social Security requires:", ["40 credits (about 10 years of work)", "6 credits", "20 credits", "6 credits in the last 13 quarters"], "A", "Fully insured takes 40 credits. Six credits in the last 13 quarters is currently insured.", 9);
+mc("D", "The Social Security blackout period:", ["Ends when the youngest child turns 18", "Begins when the youngest child turns 16 and ends when the surviving spouse turns 60", "Is the 5-month disability waiting period", "Begins when the surviving spouse turns 60"], "B", "The blackout runs from the youngest child's 16th birthday to the surviving spouse's 60th.", 9);
+mc("D", "The waiting period for Social Security disability benefits is:", ["30 days", "90 days", "12 months", "5 months"], "D", "Social Security disability has a 5-month waiting period.", 9);
+mc("D", "In key person life insurance, the owner and beneficiary is:", ["The key employee", "The key employee's family", "The business", "The insurer"], "C", "The business owns the policy, pays for it and is the beneficiary. The key employee is the insured.", 8);
+mc("D", "An employee leaving a group life plan can convert to individual whole life without proof of insurability within:", ["31 days", "10 days", "6 months", "1 year"], "A", "Group conversion is within 31 days, at attained age, with no medical exam.", 8);
+
+// Part E: North Carolina law and ethics
+mc("E", "An agent offers a prospect a $50 gift card, not stated in the policy, to buy the policy. This is:", ["Twisting", "Rebating", "Defamation", "Commingling"], "B", "Offering anything of value not in the policy to induce a sale is rebating.", 10);
+mc("E", "An agent misrepresents a client's current policy to get them to drop it and buy a new one. This is:", ["Rebating", "Controlled business", "Twisting", "Fair replacement"], "C", "Misrepresenting to replace a policy is twisting.", 10);
+mc("E", "An agent deposits client premiums in their personal checking account. This is:", ["Rebating", "Defamation", "Sliding", "Commingling"], "D", "Mixing premiums with personal funds is commingling.", 10);
+mc("E", "In NC, a licensee who unknowingly represents an unauthorized insurer commits a:", ["Class 1 misdemeanor", "Class H felony", "Civil infraction only", "No offense"], "A", "Unknowingly representing an unauthorized insurer is a Class 1 misdemeanor.", 10);
+mc("E", "In NC, a licensee who knowingly represents an unauthorized insurer commits a:", ["Class 1 misdemeanor", "Class H felony", "Civil infraction only", "No offense"], "B", "Knowingly representing an unauthorized insurer is a Class H felony.", 10);
+mc("E", "An NC licensee must report a criminal conviction to the Commissioner within:", ["5 business days", "30 days", "10 business days", "60 days"], "C", "10 business days, per the study notes. Administrative actions and prosecutions are 30 days.", 10);
+mc("E", "An insurer that terminates an agent's appointment must notify the Commissioner within:", ["10 days", "15 days", "60 days", "30 days"], "D", "The insurer tells the Commissioner within 30 days, then the agent within 15 days after that.", 10);
+mc("E", "The maximum fixed interest rate on life policy loans under NC law is:", ["8%", "6%", "10%", "12%"], "A", "The NC maximum fixed policy loan rate is 8%.", 10);
+mc("E", "The notice regarding replacement must be given to the applicant:", ["At policy delivery", "Within 30 days of issue", "At the time of application", "Only if the applicant asks"], "C", "The replacement notice is given at the time of application.", 10);
+mc("E", "A vacancy in the office of NC Commissioner of Insurance is filled by:", ["The General Assembly", "Appointment by the Governor", "The NAIC", "A special election"], "B", "The Governor fills a vacancy by appointment.", 10);
+mc("E", "A nonresident agent selling in NC needs a resident agent to countersign documents:", ["Always", "Only for group policies", "Only for variable products", "Never"], "D", "NC never requires a resident countersignature for nonresident agents.", 10);
+mc("E", "An insurer must file a new agent's appointment within how long after receiving the agent's first application?", ["5 days", "10 days", "15 days", "30 days"], "C", "The appointment is filed within 15 days of the first application.", 10);
+mc("E", "Paying policy dividends on a participating policy is:", ["Rebating", "Twisting", "Not rebating", "An illegal inducement"], "C", "Policy dividends are not rebates.", 10);
+mc("E", "Which is permitted (fair) discrimination?", ["Charging smokers more than nonsmokers", "Charging more based on race", "Charging different rates to people in the same risk class", "Declining an applicant because of marital status"], "A", "Smoking is a legitimate, risk-based underwriting factor.", 10);
+
+// Part F: True or false
+tf("Speculative risks are insurable.", false, "Only pure risks are insurable.", 2);
+tf("Every accident is an occurrence, but not every occurrence is an accident.", true, "An occurrence includes gradual events; an accident is sudden.", 2);
+tf("Insurance contracts are bilateral.", false, "Insurance contracts are unilateral: only the insurer makes an enforceable promise.", 3);
+tf("For life insurance, insurable interest must exist at the time of the insured's death.", false, "It must exist at the time of application.", 6);
+tf("Death proceeds are income-tax free, but interest earned on proceeds held by the insurer is taxable.", true, "Interest on retained proceeds is taxable.", 5);
+tf("The Medicare portion of FICA has a wage cap.", false, "Social Security has the wage cap; Medicare doesn't.", 9);
+tf("Morbidity is one of the factors used to price life insurance.", false, "Life premiums use mortality, interest and expense.", 4);
+tf("Dividends on a participating policy are guaranteed.", false, "Dividends are declared by the insurer and never guaranteed.", 1);
+tf("A domestic insurer is one incorporated in this state.", true, "Domestic means incorporated in this state.", 1);
+tf("As the number of insureds increases, the number of losses decreases.", false, "Losses become more predictable, not fewer.", 2);
+
+// Part G: Short answer
+sa("Name the five dividend options.", "CRAPO: Cash, Reduction of premium, Accumulate at interest, Paid-up additions, One-year term.", 5);
+sa("Name the four elements of a legal contract.", "CLOC: Competent parties, Legal purpose, Offer and acceptance, Consideration.", 3);
+sa("Explain the difference between a conditional receipt and a binding receipt.", "A conditional receipt dates coverage back to the application (or exam) only if the applicant qualifies as applied for. A binding receipt gives immediate coverage until the insurer decides, and is used sparingly in life insurance.", 6);
+sa("Tom is 80% vested in $10,000 of employer contributions when he leaves his job. How much of the employer money does he keep, and how much does he forfeit?", "He keeps $8,000 and forfeits $2,000. His own contributions are always 100% his.", 8);
+sa("Explain the difference between moral and morale hazard, with one example of each.", "Moral hazard is intentional dishonesty, such as arson or faking a claim. Morale hazard is carelessness because you're insured, such as leaving the car unlocked.", 2);
+
+const KEY = "ncla-quiz-v1";
+const LETTERS = ["A", "B", "C", "D"];
+const st = { answers: {}, filter: "all", list: [], pos: 0, shuffle: false };
+const revealed = new Set();
+let confirming = false;
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (s && typeof s === "object") {
+      if (s.answers && typeof s.answers === "object") st.answers = s.answers;
+      if (typeof s.filter === "string") st.filter = s.filter;
+      if (Array.isArray(s.list)) st.list = s.list.filter(id => QS[id - 1]);
+      if (Number.isInteger(s.pos)) st.pos = s.pos;
+      st.shuffle = !!s.shuffle;
+    }
+  } catch (e) { /* storage unavailable: start fresh */ }
+  if (!st.list.length && st.filter !== "missed") st.list = listFor(st.filter);
+  if (st.pos < 0 || st.pos >= st.list.length) st.pos = 0;
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* ignore */ }
+}
+
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) {
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "style") el.style.cssText = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+const $ = sel => document.querySelector(sel);
+const topicLink = t => h("a", { href: `study-guide.html#topic-${t}` }, `Review topic ${t}: ${TOPICS[t]}`);
+
+function missedIds() {
+  return QS.filter(q => st.answers[q.id] && !st.answers[q.id].correct).map(q => q.id);
+}
+function listFor(filter) {
+  let ids;
+  if (filter === "all") ids = QS.map(q => q.id);
+  else if (filter === "missed") ids = missedIds();
+  else ids = QS.filter(q => q.part === filter).map(q => q.id);
+  if (st.shuffle) {
+    ids = ids.slice();
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+  }
+  return ids;
+}
+function setFilter(f) {
+  st.filter = f;
+  st.list = listFor(f);
+  st.pos = 0;
+  render();
+}
+function current() { return QS[st.list[st.pos] - 1]; }
+function go(delta) {
+  const p = st.pos + delta;
+  if (p < 0 || p >= st.list.length) return;
+  st.pos = p;
+  render();
+}
+function jump(id) {
+  if (!st.list.includes(id)) { st.filter = "all"; st.list = listFor("all"); }
+  st.pos = st.list.indexOf(id);
+  render();
+}
+function answer(i) {
+  const q = current();
+  if (!q || q.type === "sa" || st.answers[q.id] || i < 0 || i >= q.opts.length) return;
+  st.answers[q.id] = { choice: i, correct: i === q.ans };
+  render();
+  $("#next").focus({ preventScroll: true });
+}
+function selfGrade(ok) {
+  const q = current();
+  st.answers[q.id] = { choice: null, correct: ok };
+  render();
+  $("#next").focus({ preventScroll: true });
+}
+function retry(id) {
+  delete st.answers[id];
+  revealed.delete(id);
+  render();
+}
+
+function partStats(part) {
+  const qs = QS.filter(q => q.part === part);
+  let answered = 0, right = 0;
+  for (const q of qs) {
+    const a = st.answers[q.id];
+    if (a) { answered++; if (a.correct) right++; }
+  }
+  return { total: qs.length, answered, right };
+}
+
+function renderSpectrum() {
+  const segs = [], legend = [];
+  for (const [k, p] of Object.entries(PARTS)) {
+    const s = partStats(k);
+    segs.push(h("div", { class: "seg", style: `--c:${p.color};flex:${s.total} 1 0`, title: `Part ${k}: ${s.answered} of ${s.total} answered` },
+      h("span", { style: `width:${(s.answered / s.total) * 100}%` })));
+    legend.push(h("span", { style: `flex:${s.total} 1 0` }, k, h("span", { class: "lg-n" }, ` ${s.answered}/${s.total}`)));
+  }
+  $("#spectrum").replaceChildren(...segs);
+  const answered = Object.keys(st.answers).length;
+  $("#spectrum").setAttribute("aria-label", `${answered} of ${QS.length} questions answered`);
+  $("#legend").replaceChildren(...legend);
+}
+
+function chip(f, label, color, count) {
+  return h("button", {
+    class: "chip", type: "button", "aria-pressed": String(st.filter === f),
+    style: color ? `--c:${color}` : null,
+    onclick: () => setFilter(f)
+  }, h("span", { class: color ? "dot" : "dot rainbow" }), label, h("span", { class: "count" }, count));
+}
+function renderChips() {
+  const answered = Object.keys(st.answers).length;
+  const kids = [chip("all", "All", null, `${answered}/${QS.length}`)];
+  for (const [k, p] of Object.entries(PARTS)) {
+    const s = partStats(k);
+    kids.push(chip(k, `${k} · ${p.short}`, p.color, `${s.answered}/${s.total}`));
+  }
+  kids.push(chip("missed", "Missed", "var(--bad)", String(missedIds().length)));
+  $("#chips").replaceChildren(...kids);
+  $("#shuffle").checked = st.shuffle;
+}
+
+function renderCard() {
+  const card = $("#card");
+  const q = current();
+  if (!q) {
+    card.style.cssText = "--c:var(--ok)";
+    card.replaceChildren(h("div", { class: "empty" },
+      h("h2", null, st.filter === "missed" ? "No missed questions" : "Nothing here yet"),
+      h("p", null, st.filter === "missed" ? "Every question you've answered is right. Pick a part to keep going." : "Pick a part to start.")));
+    return;
+  }
+  const p = PARTS[q.part];
+  const a = st.answers[q.id];
+  card.style.cssText = `--c:${p.color}`;
+
+  const meta = h("div", { class: "meta" },
+    h("span", { class: "part-tag" }, h("span", { class: "dot" }), `Part ${q.part} · ${p.name}`),
+    h("span", { class: "where" }, `Question ${q.id} of ${QS.length}`));
+  const qtext = h("h2", { class: "qtext", id: "qtext" }, h("span", { class: "qnum" }, `${q.id}.`), q.q);
+  const body = h("div", { class: "card-body" }, meta, qtext);
+
+  if (q.type === "sa") {
+    const shown = revealed.has(q.id) || !!a;
+    body.append(
+      h("label", { class: "sa-label", for: `sa-${q.id}` }, "Your answer (optional)"),
+      h("textarea", { id: `sa-${q.id}`, placeholder: "Write it out, then check the model answer." }));
+    if (!shown) {
+      body.append(h("div", { class: "row" },
+        h("button", { class: "btn primary", type: "button", onclick: () => { revealed.add(q.id); render(); } }, "Show answer")));
+    } else {
+      const fb = h("div", { class: a ? (a.correct ? "feedback" : "feedback bad") : "feedback neutral" },
+        h("p", { class: "fb-title" }, "Model answer"),
+        h("p", { class: "fb-why" }, q.model));
+      if (!a) {
+        fb.append(h("div", { class: "row" },
+          h("button", { class: "btn small", type: "button", onclick: () => selfGrade(true) }, "I got it"),
+          h("button", { class: "btn small", type: "button", onclick: () => selfGrade(false) }, "I missed it")));
+      } else {
+        fb.append(h("div", { class: "fb-foot" },
+          h("span", null, a.correct ? "You marked this one right. " : "You marked this one missed. ", topicLink(q.topic)),
+          h("button", { class: "btn small", type: "button", onclick: () => retry(q.id) }, "Try again")));
+      }
+      body.append(fb);
+    }
+    card.replaceChildren(body);
+    return;
+  }
+
+  const keys = q.type === "tf" ? ["T", "F"] : LETTERS;
+  const opts = h("ol", { class: "options", "aria-labelledby": "qtext" });
+  q.opts.forEach((text, i) => {
+    let cls = "opt", mark = null;
+    if (a) {
+      if (i === q.ans) { cls += " is-correct"; mark = a.correct ? "Your answer · correct" : "Correct answer"; }
+      else if (i === a.choice) { cls += " is-wrong"; mark = "Your answer"; }
+      else cls += " is-dim";
+    }
+    opts.append(h("li", null, h("button", {
+      class: cls, type: "button", disabled: !!a, onclick: () => answer(i),
+      "aria-label": `${keys[i]}: ${text}${mark ? ` (${mark})` : ""}`
+    }, h("span", { class: "key" }, keys[i]), h("span", null, text), mark ? h("span", { class: "mark" }, mark) : null)));
+  });
+  body.append(opts);
+
+  if (a) {
+    const right = `${keys[q.ans]}: ${q.opts[q.ans]}`;
+    body.append(h("div", { class: a.correct ? "feedback" : "feedback bad", role: "status" },
+      h("p", { class: "fb-title" }, a.correct ? "Correct." : `Not quite. The answer is ${right}.`),
+      h("p", { class: "fb-why" }, q.why),
+      h("div", { class: "fb-foot" },
+        topicLink(q.topic),
+        h("button", { class: "btn small", type: "button", onclick: () => retry(q.id) }, "Try again"))));
+  }
+  card.replaceChildren(body);
+}
+
+function renderNav() {
+  const n = st.list.length;
+  $("#prev").disabled = st.pos <= 0 || !n;
+  $("#next").disabled = st.pos >= n - 1 || !n;
+  const label = st.filter === "all" ? "All questions" : st.filter === "missed" ? "Missed" : `Part ${st.filter}`;
+  $("#navpos").textContent = n ? `${label} · ${st.pos + 1} of ${n}` : label;
+}
+
+function renderGrid() {
+  const cur = current();
+  const cells = QS.map(q => {
+    const a = st.answers[q.id];
+    const status = a ? (a.correct ? "right" : "missed") : "not answered";
+    return h("button", {
+      class: `qcell${a ? (a.correct ? " ok" : " bad") : ""}${cur && cur.id === q.id ? " current" : ""}`,
+      type: "button", style: `--c:${PARTS[q.part].color}`,
+      "aria-label": `Question ${q.id}, part ${q.part}, ${status}`,
+      onclick: () => jump(q.id)
+    }, String(q.id));
+  });
+  $("#qgrid").replaceChildren(...cells);
+}
+
+function renderScore() {
+  const ans = Object.values(st.answers);
+  const answered = ans.length;
+  const right = ans.filter(a => a.correct).length;
+  const pct = answered ? Math.round((right / answered) * 100) : null;
+  const rows = Object.entries(PARTS).map(([k, p]) => {
+    const s = partStats(k);
+    return h("div", { class: "prow", style: `--c:${p.color}` },
+      h("span", { class: "dot" }),
+      h("span", { class: "pname" }, `${k} · ${p.short}`),
+      h("span", { class: "pnum" }, `${s.right}/${s.answered} right`),
+      h("div", { class: "pbar", title: `${s.right} right, ${s.answered - s.right} missed, ${s.total - s.answered} left` },
+        h("span", { class: "right", style: `width:${(s.right / s.total) * 100}%` }),
+        h("span", { class: "wrong", style: `width:${((s.answered - s.right) / s.total) * 100}%` })));
+  });
+  const missed = answered - right;
+  const actions = confirming
+    ? [h("p", { class: "confirm" }, "Erase every saved answer?"),
+       h("div", { class: "score-actions" },
+         h("button", { class: "btn small danger", type: "button", onclick: () => { st.answers = {}; revealed.clear(); confirming = false; setFilter("all"); } }, "Erase answers"),
+         h("button", { class: "btn small", type: "button", onclick: () => { confirming = false; render(); } }, "Cancel"))]
+    : [h("div", { class: "score-actions" },
+         h("button", { class: "btn small", type: "button", disabled: !missed, onclick: () => setFilter("missed") }, `Practice missed (${missed})`),
+         h("button", { class: "btn small", type: "button", disabled: !answered, onclick: () => { confirming = true; render(); } }, "Reset"))];
+  $("#score").replaceChildren(
+    h("div", null,
+      h("h2", null, "Your score"),
+      h("div", { class: "big" }, pct == null ? "—" : `${pct}%`),
+      h("p", { class: "sub" }, answered ? `${right} right of ${answered} answered · ${QS.length - answered} left` : `0 of ${QS.length} answered. Aim for 85 or more right.`)),
+    h("div", { class: "prows" }, rows),
+    ...actions);
+}
+
+function render() {
+  if (st.pos >= st.list.length) st.pos = Math.max(0, st.list.length - 1);
+  renderSpectrum();
+  renderChips();
+  renderCard();
+  renderNav();
+  renderGrid();
+  renderScore();
+  const q = current();
+  try { if (q) history.replaceState(null, "", `#q${q.id}`); } catch (e) { /* ignore */ }
+  save();
+}
+
+$("#prev").addEventListener("click", () => go(-1));
+$("#next").addEventListener("click", () => go(1));
+$("#shuffle").addEventListener("change", e => {
+  st.shuffle = e.target.checked;
+  st.list = listFor(st.filter);
+  st.pos = 0;
+  render();
+});
+document.addEventListener("keydown", e => {
+  if (e.target.closest("textarea, input, select") || e.metaKey || e.ctrlKey || e.altKey) return;
+  const q = current();
+  const k = e.key.toLowerCase();
+  if (k === "arrowright") { go(1); e.preventDefault(); return; }
+  if (k === "arrowleft") { go(-1); e.preventDefault(); return; }
+  if (!q || q.type === "sa") return;
+  let i = -1;
+  if (q.type === "tf") i = { t: 0, f: 1, a: 0, b: 1, "1": 0, "2": 1 }[k] ?? -1;
+  else i = { a: 0, b: 1, c: 2, d: 3, "1": 0, "2": 1, "3": 2, "4": 3 }[k] ?? -1;
+  if (i >= 0) { answer(i); e.preventDefault(); }
+});
+
+load();
+const m = /^#q(\d+)$/.exec(location.hash);
+if (m && QS[+m[1] - 1]) jump(+m[1]); else render();
+</script>
+</body>
+</html>
