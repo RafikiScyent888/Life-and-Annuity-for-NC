@@ -96,6 +96,21 @@
   font: 800 1rem var(--display);
 }
 .how strong { display: block; }
+
+.retake-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin: 0 0 28px;
+  padding: 14px 18px;
+  border-left: 5px solid var(--bad);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bad) 9%, var(--surface));
+}
+.retake-banner p { margin: 0; }
+.retake-banner strong { display: block; font: 800 1.1rem var(--display); }
 </style>
 </head>
 <body>
@@ -171,10 +186,15 @@
     </a>
   </div>
 
+  <div class="retake-banner" id="retake-banner" hidden>
+    <p><strong id="retake-title"></strong><span id="retake-text"></span></p>
+    <a class="btn primary" id="retake-link" href="practice-test.html#retake">Start the retake test →</a>
+  </div>
+
   <ol class="how">
     <li style="--c:var(--red)"><span><strong>Read a topic</strong>Each topic has a color. Watch for the “Watch out” boxes.</span></li>
     <li style="--c:var(--green)"><span><strong>Practice that part</strong>Pick the matching color in the test, or run all 150.</span></li>
-    <li style="--c:var(--violet)"><span><strong>Retry your misses</strong>“Practice missed” brings back only the questions you got wrong.</span></li>
+    <li style="--c:var(--violet)"><span><strong>Retake your misses</strong>The retake test brings back only the questions you got wrong, then shows which topics to study.</span></li>
   </ol>
 </main>
 
@@ -189,6 +209,19 @@ try {
   if (answers.length) {
     const right = answers.filter(a => a.correct).length;
     document.getElementById("progress").textContent = `${answers.length} of 150 answered · ${right} right`;
+  }
+  // Point to the retake test when there are missed questions or a retake in progress
+  const missed = answers.filter(a => !a.correct).length;
+  const r = s && s.retake && Array.isArray(s.retake.ids) ? s.retake : null;
+  const done = r && r.answers ? Object.keys(r.answers).length : 0;
+  const inProgress = r && !r.finished && done < r.ids.length;
+  if (missed || inProgress) {
+    document.getElementById("retake-title").textContent = inProgress
+      ? `Your retake test is ${done} of ${r.ids.length} done`
+      : `You've missed ${missed} question${missed === 1 ? "" : "s"}`;
+    document.getElementById("retake-text").textContent = "Retake just those, then see which study guide topics need more work.";
+    if (inProgress) document.getElementById("retake-link").textContent = "Resume the retake →";
+    document.getElementById("retake-banner").hidden = false;
   }
 } catch (e) { /* storage unavailable */ }
 </script>

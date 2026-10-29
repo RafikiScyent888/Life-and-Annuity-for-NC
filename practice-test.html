@@ -264,6 +264,88 @@ details.jump summary { cursor: pointer; font-weight: 700; }
 .score-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .confirm { margin: 0; font-size: 0.88rem; }
 
+/* Retake test */
+.retake-tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.retake-box {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--bad);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bad) 8%, var(--surface));
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+.study-first h3 { margin: 0 0 6px; font: 800 0.95rem var(--display); }
+.study-first ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 0.86rem; }
+.study-first li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.study-first a { min-width: 0; }
+.study-first .pnum { flex: none; white-space: nowrap; }
+
+.results { padding: 22px clamp(16px, 3vw, 26px) 24px; display: grid; gap: 14px; }
+.results .eyebrow { margin-bottom: 4px; }
+.res-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.res-pct { font-weight: 700; font-variant-numeric: tabular-nums; }
+.res-sub { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+.res-h { margin: 8px 0 0; font: 800 1.1rem var(--display); }
+.focus-list, .miss-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.focus-list li {
+  display: grid;
+  grid-template-columns: 2.2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.focus-count {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bad) 15%, var(--surface));
+  color: var(--bad);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.focus-name { display: grid; min-width: 0; }
+.focus-qs { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 520px) {
+  .focus-list li { grid-template-columns: 2.2rem minmax(0, 1fr); }
+  .focus-list .btn { grid-column: 2; justify-self: start; }
+}
+.miss-list li {
+  padding: 12px 14px;
+  border-left: 4px solid var(--c);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 7%, var(--surface));
+}
+.miss-list p { margin: 0; max-width: 72ch; }
+.miss-meta { font-size: 0.8rem; color: var(--muted); }
+.miss-q { margin: 4px 0 6px !important; font-weight: 700; }
+.miss-a strong { color: var(--ok); }
+.miss-y { font-size: 0.9rem; color: var(--muted); }
+.miss-why { margin-top: 4px !important; font-size: 0.9rem; }
+.linklike {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
 .empty { padding: 28px 24px; text-align: center; }
 .empty h2 { margin: 0 0 6px; font: 800 1.3rem var(--display); }
 .empty p { margin: 0; color: var(--muted); }
@@ -550,7 +632,8 @@ sa("Besides taking a lump sum, name the four common settlement options for life 
 
 const KEY = "ncla-quiz-v1";
 const LETTERS = ["A", "B", "C", "D"];
-const st = { answers: {}, filter: "all", list: [], pos: 0, shuffle: false };
+// retake: { ids, answers, round } for the current retake test of missed questions, or null
+const st = { answers: {}, filter: "all", list: [], pos: 0, shuffle: false, retake: null };
 const revealed = new Set();
 let confirming = false;
 
@@ -563,10 +646,21 @@ function load() {
       if (Array.isArray(s.list)) st.list = s.list.filter(id => QS[id - 1]);
       if (Number.isInteger(s.pos)) st.pos = s.pos;
       st.shuffle = !!s.shuffle;
+      if (s.retake && Array.isArray(s.retake.ids)) {
+        st.retake = {
+          ids: s.retake.ids.filter(id => QS[id - 1]),
+          answers: s.retake.answers && typeof s.retake.answers === "object" ? s.retake.answers : {},
+          round: Number.isInteger(s.retake.round) ? s.retake.round : 1,
+          finished: !!s.retake.finished
+        };
+      }
     }
   } catch (e) { /* storage unavailable: start fresh */ }
-  if (!st.list.length && st.filter !== "missed") st.list = listFor(st.filter);
-  if (st.pos < 0 || st.pos >= st.list.length) st.pos = 0;
+  if (st.filter === "retake") {
+    if (st.retake) st.list = st.retake.ids.slice(); else st.filter = "all";
+  }
+  if (!st.list.length && st.filter !== "missed" && st.filter !== "retake") st.list = listFor(st.filter);
+  if (st.pos < 0 || st.pos > lastPos()) st.pos = 0;
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* ignore */ }
@@ -597,21 +691,53 @@ const sourceLink = s => s ? h("span", null, "Source: ", h("a", { href: s.url, ta
 function missedIds() {
   return QS.filter(q => st.answers[q.id] && !st.answers[q.id].correct).map(q => q.id);
 }
+function shuffled(ids) {
+  ids = ids.slice();
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  return ids;
+}
 function listFor(filter) {
   let ids;
   if (filter === "all") ids = QS.map(q => q.id);
   else if (filter === "missed") ids = missedIds();
   else if (filter === "new") ids = QS.filter(q => q.id > 100).map(q => q.id);
   else ids = QS.filter(q => q.part === filter).map(q => q.id);
-  if (st.shuffle) {
-    ids = ids.slice();
-    for (let i = ids.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [ids[i], ids[j]] = [ids[j], ids[i]];
-    }
-  }
-  return ids;
+  return st.shuffle ? shuffled(ids) : ids;
 }
+
+// Retake test: a fresh run through the missed questions. Answers given here also update the
+// main record, so a question answered right drops off the missed list. Leaving part way keeps
+// the main record as it was for any question not yet retaken.
+function inRetake() { return st.filter === "retake" && !!st.retake; }
+function ansFor(id) { return inRetake() ? st.retake.answers[id] : st.answers[id]; }
+// A retake is finished once its results have been shown, even if some questions were skipped.
+function retakeInProgress() { return !!st.retake && !st.retake.finished && st.retake.ids.some(id => !st.retake.answers[id]); }
+// In a retake, the position just past the last question shows the results.
+function lastPos() { return st.filter === "retake" ? st.list.length : st.list.length - 1; }
+function startRetake(ids) {
+  ids = ids || missedIds();
+  if (!ids.length) { st.filter = "missed"; st.list = []; st.pos = 0; render(); return; }
+  ids = st.shuffle ? shuffled(ids) : ids.slice();
+  st.retake = { ids, answers: {}, round: (st.retake ? st.retake.round : 0) + 1 };
+  ids.forEach(id => revealed.delete(id));
+  st.filter = "retake";
+  st.list = ids.slice();
+  st.pos = 0;
+  render();
+  const card = $("#card");
+  if (card.getBoundingClientRect().top < 0) card.scrollIntoView({ block: "start" });
+}
+function resumeRetake() {
+  st.filter = "retake";
+  st.list = st.retake.ids.slice();
+  const next = st.list.findIndex(id => !st.retake.answers[id]);
+  st.pos = next < 0 ? st.list.length : next;
+  render();
+}
+function openRetake() { if (retakeInProgress()) resumeRetake(); else startRetake(); }
 function setFilter(f) {
   st.filter = f;
   st.list = listFor(f);
@@ -621,7 +747,7 @@ function setFilter(f) {
 function current() { return QS[st.list[st.pos] - 1]; }
 function go(delta) {
   const p = st.pos + delta;
-  if (p < 0 || p >= st.list.length) return;
+  if (p < 0 || p > lastPos()) return;
   st.pos = p;
   render();
 }
@@ -630,21 +756,25 @@ function jump(id) {
   st.pos = st.list.indexOf(id);
   render();
 }
+function record(q, result) {
+  if (inRetake()) st.retake.answers[q.id] = result;
+  st.answers[q.id] = result;
+}
 function answer(i) {
   const q = current();
-  if (!q || q.type === "sa" || st.answers[q.id] || i < 0 || i >= q.opts.length) return;
-  st.answers[q.id] = { choice: i, correct: i === q.ans };
+  if (!q || q.type === "sa" || ansFor(q.id) || i < 0 || i >= q.opts.length) return;
+  record(q, { choice: i, correct: i === q.ans });
   render();
   $("#next").focus({ preventScroll: true });
 }
 function selfGrade(ok) {
   const q = current();
-  st.answers[q.id] = { choice: null, correct: ok };
+  record(q, { choice: null, correct: ok });
   render();
   $("#next").focus({ preventScroll: true });
 }
 function retry(id) {
-  delete st.answers[id];
+  if (inRetake()) delete st.retake.answers[id]; else delete st.answers[id];
   revealed.delete(id);
   render();
 }
@@ -690,12 +820,81 @@ function renderChips() {
   const fresh = QS.filter(q => q.id > 100);
   kids.push(chip("new", "New from the exam outline", "var(--fg)", `${fresh.filter(q => st.answers[q.id]).length}/${fresh.length}`));
   kids.push(chip("missed", "Missed", "var(--bad)", String(missedIds().length)));
+  const showProgress = inRetake() || retakeInProgress();
+  kids.push(h("button", {
+    class: "chip", type: "button", "aria-pressed": String(st.filter === "retake"), style: "--c:var(--bad)",
+    onclick: openRetake
+  }, h("span", { class: "dot" }), retakeInProgress() && !inRetake() ? "Resume retake" : "Retake test",
+    h("span", { class: "count" }, showProgress ? `${Object.keys(st.retake.answers).length}/${st.retake.ids.length}` : String(missedIds().length))));
   $("#chips").replaceChildren(...kids);
   $("#shuffle").checked = st.shuffle;
 }
 
+const optLabel = (q, i) => q.type === "mc" ? `${LETTERS[i]}. ${q.opts[i]}` : q.opts[i];
+
+function missItem(q, a) {
+  const answerText = q.type === "sa" ? q.model : optLabel(q, q.ans);
+  const yours = !a ? "Skipped" : q.type === "sa" ? "You marked it missed" : optLabel(q, a.choice);
+  return h("li", { style: `--c:${PARTS[q.part].color}` },
+    h("p", { class: "miss-meta" }, `Question ${q.id} · Part ${q.part} · `, h("button", { class: "linklike", type: "button", onclick: () => jump(q.id) }, "Open question")),
+    h("p", { class: "miss-q" }, q.q),
+    h("p", { class: "miss-a" }, h("strong", null, "Answer: "), answerText),
+    h("p", { class: "miss-y" }, `Your answer: ${yours}`),
+    q.why ? h("p", { class: "miss-why" }, q.why) : null);
+}
+
+function renderResults(card) {
+  const r = st.retake;
+  const res = r.ids.map(id => ({ q: QS[id - 1], a: r.answers[id] }));
+  const right = res.filter(x => x.a && x.a.correct).length;
+  const still = res.filter(x => !x.a || !x.a.correct);
+  const skipped = res.filter(x => !x.a).length;
+  const pct = Math.round((right / res.length) * 100);
+  // Group what's still missed by study guide topic, most-missed first
+  const groups = {};
+  for (const { q } of still) (groups[q.topic] = groups[q.topic] || []).push(q.id);
+  const focus = Object.entries(groups).sort((x, y) => y[1].length - x[1].length || x[0] - y[0]);
+  card.style.cssText = `--c:${still.length ? "var(--bad)" : "var(--ok)"}`;
+
+  let summary;
+  if (!still.length) summary = "You got every one right, so they're off your missed list.";
+  else if (skipped) summary = `${still.length - skipped} still missed and ${skipped} skipped. Study the topics below, then retake them.`;
+  else summary = `${still.length} still missed. Study the topics below, then retake them.`;
+
+  const body = h("div", { class: "results" },
+    h("div", null,
+      h("p", { class: "eyebrow" }, `Retake round ${r.round} · results`),
+      h("div", { class: "res-score" },
+        h("span", { class: "big" }, `${right}/${res.length}`),
+        h("span", { class: "res-pct" }, `${pct}% right`)),
+      h("p", { class: "res-sub" }, summary)));
+
+  if (still.length) {
+    body.append(
+      h("h3", { class: "res-h" }, "Study these topics next"),
+      h("ol", { class: "focus-list" }, focus.map(([t, ids]) => h("li", null,
+        h("span", { class: "focus-count", title: `${ids.length} missed` }, String(ids.length)),
+        h("span", { class: "focus-name" },
+          h("strong", null, `Topic ${t}: ${TOPICS[t]}`),
+          h("span", { class: "focus-qs" }, `${ids.length === 1 ? "Question" : "Questions"} ${ids.join(", ")}`)),
+        h("a", { class: "btn small", href: `study-guide.html#topic-${t}` }, "Study topic →")))),
+      h("h3", { class: "res-h" }, "Questions to review"),
+      h("ol", { class: "miss-list" }, still.map(({ q, a }) => missItem(q, a))),
+      h("div", { class: "row" },
+        h("button", { class: "btn primary", type: "button", onclick: () => startRetake(still.map(x => x.q.id)) }, `Retake the ${still.length} still missed`),
+        h("button", { class: "btn", type: "button", onclick: () => setFilter("all") }, "Back to all questions")));
+  } else {
+    const more = missedIds().length;
+    body.append(h("div", { class: "row" },
+      h("button", { class: "btn primary", type: "button", onclick: () => setFilter("all") }, "Back to all questions"),
+      more ? h("button", { class: "btn", type: "button", onclick: () => startRetake() }, `Retake the other ${more} missed`) : null));
+  }
+  card.replaceChildren(body);
+}
+
 function renderCard() {
   const card = $("#card");
+  if (inRetake() && st.pos >= st.list.length) { renderResults(card); return; }
   const q = current();
   if (!q) {
     card.style.cssText = "--c:var(--ok)";
@@ -705,11 +904,12 @@ function renderCard() {
     return;
   }
   const p = PARTS[q.part];
-  const a = st.answers[q.id];
+  const a = ansFor(q.id);
   card.style.cssText = `--c:${p.color}`;
 
   const meta = h("div", { class: "meta" },
     h("span", { class: "tags" },
+      inRetake() ? h("span", { class: "retake-tag" }, `Retake ${st.pos + 1} of ${st.list.length}`) : null,
       h("span", { class: "part-tag" }, h("span", { class: "dot" }), `Part ${q.part} · ${p.name}`),
       q.id > 100 ? h("span", { class: "new-tag" }, "From the exam outline") : null),
     h("span", { class: "where" }, `Question ${q.id} of ${QS.length}`));
@@ -773,6 +973,15 @@ function renderCard() {
 
 function renderNav() {
   const n = st.list.length;
+  if (inRetake()) {
+    const atResults = st.pos >= n;
+    $("#prev").disabled = st.pos <= 0;
+    $("#next").disabled = atResults;
+    $("#next").textContent = st.pos === n - 1 ? "See results →" : "Next →";
+    $("#navpos").textContent = atResults ? `Retake round ${st.retake.round} · results` : `Retake · ${st.pos + 1} of ${n}`;
+    return;
+  }
+  $("#next").textContent = "Next →";
   $("#prev").disabled = st.pos <= 0 || !n;
   $("#next").disabled = st.pos >= n - 1 || !n;
   const label = { all: "All questions", missed: "Missed", new: "New questions" }[st.filter] || `Part ${st.filter}`;
@@ -813,22 +1022,47 @@ function renderScore() {
   const actions = confirming
     ? [h("p", { class: "confirm" }, "Erase every saved answer?"),
        h("div", { class: "score-actions" },
-         h("button", { class: "btn small danger", type: "button", onclick: () => { st.answers = {}; revealed.clear(); confirming = false; setFilter("all"); } }, "Erase answers"),
+         h("button", { class: "btn small danger", type: "button", onclick: () => { st.answers = {}; st.retake = null; revealed.clear(); confirming = false; setFilter("all"); } }, "Erase answers"),
          h("button", { class: "btn small", type: "button", onclick: () => { confirming = false; render(); } }, "Cancel"))]
     : [h("div", { class: "score-actions" },
-         h("button", { class: "btn small", type: "button", disabled: !missed, onclick: () => setFilter("missed") }, `Practice missed (${missed})`),
+         inRetake()
+           ? h("button", { class: "btn small", type: "button", onclick: () => setFilter("all") }, "Exit retake")
+           : h("button", { class: "btn small", type: "button", disabled: !missed && !retakeInProgress(), onclick: openRetake }, retakeInProgress() ? "Resume retake" : `Retake missed (${missed})`),
          h("button", { class: "btn small", type: "button", disabled: !answered, onclick: () => { confirming = true; render(); } }, "Reset"))];
+
+  // While retaking, show that round's progress
+  let retakeBox = null;
+  if (inRetake()) {
+    const ra = Object.values(st.retake.answers);
+    retakeBox = h("div", { class: "retake-box" },
+      h("strong", null, `Retake round ${st.retake.round}`),
+      h("span", null, `${ra.length} of ${st.retake.ids.length} answered · ${ra.filter(a => a.correct).length} right`));
+  }
+
+  // The study guide topics with the most missed questions overall
+  const byTopic = {};
+  for (const q of QS) { const a = st.answers[q.id]; if (a && !a.correct) byTopic[q.topic] = (byTopic[q.topic] || 0) + 1; }
+  const weakest = Object.entries(byTopic).sort((x, y) => y[1] - x[1] || x[0] - y[0]).slice(0, 3);
+  const studyFirst = weakest.length ? h("div", { class: "study-first" },
+    h("h3", null, "Study these first"),
+    h("ol", null, weakest.map(([t, n]) => h("li", null,
+      h("a", { href: `study-guide.html#topic-${t}` }, `Topic ${t}: ${TOPICS[t]}`),
+      h("span", { class: "pnum" }, `${n} missed`))))) : null;
+
   $("#score").replaceChildren(
     h("div", null,
       h("h2", null, "Your score"),
       h("div", { class: "big" }, pct == null ? "—" : `${pct}%`),
       h("p", { class: "sub" }, answered ? `${right} right of ${answered} answered · ${QS.length - answered} left` : `0 of ${QS.length} answered. Aim for 85% or better.`)),
+    retakeBox,
     h("div", { class: "prows" }, rows),
+    studyFirst,
     ...actions);
 }
 
 function render() {
-  if (st.pos >= st.list.length) st.pos = Math.max(0, st.list.length - 1);
+  if (st.pos > lastPos()) st.pos = Math.max(0, lastPos());
+  if (inRetake() && st.pos >= st.list.length) st.retake.finished = true;
   renderSpectrum();
   renderChips();
   renderCard();
@@ -836,7 +1070,10 @@ function render() {
   renderGrid();
   renderScore();
   const q = current();
-  try { if (q) history.replaceState(null, "", `#q${q.id}`); } catch (e) { /* ignore */ }
+  try {
+    if (inRetake()) history.replaceState(null, "", "#retake");
+    else if (q) history.replaceState(null, "", `#q${q.id}`);
+  } catch (e) { /* ignore */ }
   save();
 }
 
@@ -863,7 +1100,9 @@ document.addEventListener("keydown", e => {
 
 load();
 const m = /^#q(\d+)$/.exec(location.hash);
-if (m && QS[+m[1] - 1]) jump(+m[1]); else render();
+if (location.hash === "#retake") { if (inRetake()) render(); else openRetake(); }
+else if (m && QS[+m[1] - 1]) jump(+m[1]);
+else render();
 </script>
 </body>
 </html>
