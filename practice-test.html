@@ -288,6 +288,7 @@ details.jump summary { cursor: pointer; font-weight: 700; }
 .study-first li { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .study-first a { min-width: 0; }
 .study-first .pnum { flex: none; white-space: nowrap; }
+.study-first .empty-note { margin: 0; font-size: 0.86rem; color: var(--muted); }
 
 .results { padding: 22px clamp(16px, 3vw, 26px) 24px; display: grid; gap: 14px; }
 .results .eyebrow { margin-bottom: 4px; }
@@ -1043,13 +1044,18 @@ function renderScore() {
   const byTopic = {};
   for (const q of QS) { const a = st.answers[q.id]; if (a && !a.correct) byTopic[q.topic] = (byTopic[q.topic] || 0) + 1; }
   const weakest = Object.entries(byTopic).sort((x, y) => y[1] - x[1] || x[0] - y[0]).slice(0, 3);
-  const studyFirst = weakest.length ? h("div", { class: "study-first" },
+  const studyFirst = h("div", { class: "study-first" },
     h("h3", null, "Study these first"),
-    h("ol", null, weakest.map(([t, n]) => h("li", null,
-      h("a", { href: `study-guide.html#topic-${t}` }, `Topic ${t}: ${TOPICS[t]}`),
-      h("span", { class: "pnum" }, `${n} missed`))))) : null;
+    weakest.length
+      ? h("ol", null, weakest.map(([t, n]) => h("li", null,
+          h("a", { href: `study-guide.html#topic-${t}` }, `Topic ${t}: ${TOPICS[t]}`),
+          h("span", { class: "pnum" }, `${n} missed`))))
+      : h("p", { class: "empty-note" }, answered
+          ? "0 missed so far. Topics you miss will show up here."
+          : "Topics you miss will show up here."));
 
-  $("#score").replaceChildren(
+  // replaceChildren would print a skipped (null) section as the text "null", so drop those first
+  $("#score").replaceChildren(...[
     h("div", null,
       h("h2", null, "Your score"),
       h("div", { class: "big" }, pct == null ? "—" : `${pct}%`),
@@ -1057,7 +1063,8 @@ function renderScore() {
     retakeBox,
     h("div", { class: "prows" }, rows),
     studyFirst,
-    ...actions);
+    ...actions
+  ].filter(Boolean));
 }
 
 function render() {
